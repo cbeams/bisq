@@ -1,0 +1,6 @@
+git clean
+copy: assets  common  core  desktop  monitor  p2p  seednode  statsnode
+git clean
+remove .git dirs
+remove redundant LICENSE files, gradle wrappers, etc
+delombok

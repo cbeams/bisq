@@ -1,0 +1,68 @@
+The multi-repo approach taken over the last months was not a good fit for the
+team. It was too fine-grained in its separation of repositories, and ultimately
+caused more work than it was worth.
+
+One key goal of the multi-repo approach was to allow developers to focus on and
+own their areas of interest and expertise without being inundated by issues and
+commits and pull requests from all other areas. But the multi-repo change was
+made at the same time we instituted a strict C4-style fork-and-pull-request
+model, and the impact of the latter change made a big difference on its own, by
+keeping all topic branches out of the main repository, and by keeping master
+clean. In the end, multiple repositories are not as necessary and useful in a
+C4-style environment as they might be in other less rigorous development
+processes. Reconsolidation won't be a panacea; there will be more noise for
+people to deal with, we'll have to get better at managing and labeling issues,
+etc, but on balance it is quite clear now that moving back to a single
+repository is the right thing to do for most of the repositories that make up
+the Bisq application and network.
+
+Fully separate applications such as the Bisq explorer, Bisq markets webapp,
+will not be included in the new monorepo; these are "Bisq applications", not
+"Bisq itself". What will live in this repository are those things that are
+essential to the operation and monitoring of the network.
+
+This repository and these RECONSOLIDATION-* files are a dry run attempt at
+reconsolidation without having to stop the world, i.e. issue a code freeze
+across all repositories and figure it all out in real time. The
+RECONSOLIDATION-LOG file tracks the actual changes made, in the order they were
+made, and the RECONSOLIDATION-TODO file is a not-necessarily ordered list of
+things to be done as they occur to the author. Ideally, we will complete this
+dry run prior to the v0.7.2 release, issue a code freeze on all repositories,
+and then quickly replay the the changes in the RECONSOLIDATION-LOG so everyone
+can get back to work.
+
+What follows are a list of goals for the reconsolidation effort. In a word,
+though, the goal is simplicity.
+
+* To simplify the build and release process. Single repo, single tag, single
+  release notes, single source for binaries.
+
+* To simplify and make idiomatic the developer setup experience.
+
+  When working from the command line, the workflow should be as simple as:
+
+    git clone bisq-network/bisq && cd bisq
+    ./gradlew build
+    ./fx/bisq-fx           # symlink to fx/build/app/bin/bisq-fx
+    ./core/bisqd           #    "    "  core/build/app/bin/bisqd
+    ./pricenode/pricenode  #    "    "  pricenode/build/app/bin/pricenode
+    ...
+
+  When working from the IDE (IDEA or Eclipse):
+
+    clone bisq-network/bisq
+    import project         # with zero errors
+    run tests & apps       # with no additional IDE setup / config required
+
+* To keep everything but third-party dependencies self-contained, i.e. no need to
+  resolve bisq-* dependencies via JitPack or other remote repositories. This is
+  both for security reasons as well as developer convenience and elimination of
+  the inevitable hassles that arise from having a more fine-grained internal
+  dependency model (failed builds on JitPack, needing to keep many versions up
+  to date, etc.)
+
+* To keep Bisq's Java API effectively internal by not publishing it anywhere
+  and not depending on it in any of the apps we build and maintain. This allows
+  us to stay flexible with the Java API for refactoring, etc, and puts the
+  focus on Bisq's forthcoming HTTP and RPC APIs as interfaces for trading bots
+  and other applications.
