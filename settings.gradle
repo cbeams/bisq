@@ -1,0 +1,3 @@
+include 'fx'
+
+rootProject.name = 'bisq'
