@@ -1,7 +1,7 @@
 /docs
 /log
 /bin
-/out
+out
 .idea
 !.idea/copyright/bisq_Affero_GPLv3.xml
 !.idea/copyright/profiles_settings.xml
