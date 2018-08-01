@@ -1,5 +1,5 @@
-git clean
-mv src => fx/src
+mkdir fx
+git mv src fx/
 repackage bisq.desktop => bisq.fx
 copy: assets  common  core  monitor  p2p  pricenode  relay  seednode  statsnode
 git clean subdirs
