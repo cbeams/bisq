@@ -7,3 +7,5 @@ $ mkdir fx/gradle
 $ git mv gradle/witness/ fx/gradle/
 $ vi fx/settings.gradle # change projectname to bisq-fx
 $ touch build.gradle settings.gradle # apply plugin java-base set rootProject.name = 'bisq'
+$ remove fx/settings.gradle
+$ vi settings.gradle and prefix all subprojects as bisq-*
