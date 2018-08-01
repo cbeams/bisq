@@ -1,6 +1,14 @@
 git clean
-copy: assets  common  core  desktop  monitor  p2p  seednode  statsnode
-git clean
+mv src => fx/src
+repackage bisq.desktop => bisq.fx
+copy: assets  common  core  monitor  p2p  pricenode  relay  seednode  statsnode
+git clean subdirs
 remove .git dirs
 remove redundant LICENSE files, gradle wrappers, etc
+rename p2p => net
+rename relay => ?
 delombok
+gource
+codeowners
+do away with bisq-btcnode repository; just check shared bitcoin.conf into the
+    main repo somewhere that makes sense
