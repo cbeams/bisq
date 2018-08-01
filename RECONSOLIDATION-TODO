@@ -1,5 +1,4 @@
-mkdir fx
-git mv src fx/
+$ vi fx/settings.gradle # change projectname to bisq-fx
 repackage bisq.desktop => bisq.fx
 copy: assets  common  core  monitor  p2p  pricenode  relay  seednode  statsnode
 git clean subdirs

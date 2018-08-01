@@ -1,3 +1,7 @@
 git clone bisq-network/desktop bisq
 add RECONSOLIDATION-* docs
 git clean
+$ mkdir fx
+$ git mv src build.gradle settings.gradle package fx
+$ mkdir fx/gradle
+$ git mv gradle/witness/ fx/gradle/
