@@ -1,3 +1,4 @@
+include 'assets'
 include 'common'
 include 'net'
 include 'core'

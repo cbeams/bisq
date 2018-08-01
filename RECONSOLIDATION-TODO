@@ -1,4 +1,4 @@
-copy: assets  monitor  pricenode  relay  seednode  statsnode
+copy: monitor  pricenode  relay  seednode  statsnode
 git clean subdirs
 remove .git dirs
 remove redundant LICENSE files, gradle wrappers, etc
@@ -14,3 +14,4 @@ do away with bisq-btcnode repository; just check shared bitcoin.conf into the
     main repo somewhere that makes sense
 s101
 jdk10
+figure out what to do with publishing assets javadoc. probably still fine from JitPack.

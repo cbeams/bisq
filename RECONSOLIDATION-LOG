@@ -21,7 +21,7 @@ $ rm -rf .editorconfig .git .gitignore .gradle gradle gradlew* settings.gradle L
 $ gradle clean build # from root
 # check it all in
 
-$ git clone bisq-network/bisq-core && cd core
+$ git clone bisq-network/bisq-core core && cd core
 $ rm -rf .editorconfig .git .gitignore .idea .travis.yml CONTRIBUTING.md LICENSE README.md gradle gradle.properties gradlew* settings.gradle
 # import core into top-level settings.gradle
 # change dependency in fx/build.gradle to project ':bisq-core'
@@ -36,4 +36,12 @@ $ rm -rf .editorconfig .git .gitignore .idea .travis.yml CONTRIBUTING.md LICENSE
 $ gradle clean build # from root
 # commit
 # change dependency in (net) build.gradle to project ':common'
+# commit
+
+$ git clone bisq-network/bisq-assets assets && cd assets
+# update root level .travis.yml with check from assets .travis.yml
+$ rm -rf .editorconfig .git .gitignore .idea .travis.yml CONTRIBUTING.md LICENSE README.md gradle gradle.properties gradlew* settings.gradle
+# import assets into top-level settings.gradle
+# change dependency in core/build.gradle to project ':bisq-assets'
+$ gradle clean build # from root
 # commit
