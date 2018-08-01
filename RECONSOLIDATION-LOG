@@ -9,3 +9,6 @@ $ vi fx/settings.gradle # change projectname to bisq-fx
 $ touch build.gradle settings.gradle # apply plugin java-base set rootProject.name = 'bisq'
 $ remove fx/settings.gradle
 $ vi settings.gradle and prefix all subprojects as bisq-*
+
+# zero out top-level README and replace with basic build / run / IDEA config and import instructions
+# including the bit from bisq-common's README about idea.max.intellisense.filesize=12500

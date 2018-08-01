@@ -1,55 +1,31 @@
-<img src="https://bisq.network/images/logo_white_bg.png" width="410" />
+# Bisq
 
+## Build
 
-What is Bisq?
-------------------
+./gradlew build
 
-Bisq is a cross-platform desktop application that allows users to trade national currency (dollars, euros, etc) for bitcoin without relying on centralized exchanges such as Coinbase, Bitstamp or (the former) Mt. Gox.
+## Run
 
-By running Bisq on their local machines, users form a peer-to-peer network. Offers to buy and sell bitcoin are broadcast to that network, and through the process of offering and accepting these trades via the Bisq UI, a market is established.
+./fx/build/app/bin/bisq-fx
 
-There are no central points of control or failure in the Bisq network. There are no trusted third parties. When two parties agree to trade national currency for bitcoin, the bitcoin to be bought or sold is held in escrow using multisignature transaction capabilities native to the bitcoin protocol.
+## Import into IDEA
 
-Because the national currency portion of any trade must be transferred via traditional means such as a wire transfer, Bisq incorporates first-class support for human arbitration to resolve any errors or disputes.
+### Configure IDEA properties
 
-You can read about all of this and more in the [whitepaper](https://bisq.network/bitsquare.pdf) and [arbitration](https://bisq.network/arbitration_system.pdf) documents. Several [videos](https://bisq.network/blog/category/video) are available as well.
+Before importing the project, open IDEA, go to `Help->Edit Custom Properties...` and add the following line:
 
-Status
-------
-Bisq has released the beta version on the 27th of April 2016. It is operational since that time without any major incident.
-Please follow the current development state at our [road map]( https://bisq.network/roadmap).
-For the latest version checkout our [releases page](https://github.com/bisq-network/exchange/releases) at GitHub.
+    idea.max.intellisense.filesize=12500
 
-Building from source
---------------------
+This ensures that IDEA will be able to handle Bisq's very large generated `PB.java` Protobuf sources. Without changing this setting, you will get compilation errors in IDEA wherever these generated types are used.
 
-See [doc/build.md](doc/build.md).
+Close and restart IDEA for the new setting to take effect.
 
-[AUR for Arch Linux](https://aur.archlinux.org/packages/bisq-git/)
+### Enable annotation processing
 
+Go to `Preferences->Build, Execution, Deployment->Annotation Processors` and check `Enable annotation processing`.
 
-Staying in Touch
-----------------
+This allows Lombok annotations to work and avoids compilation errors.
 
-Contact the team and keep up to date using any of the following:
+### Import the project
 
- - The [Bisq website](https://bisq.network)
- - GitHub [Issues](https://github.com/bisq-network/bisq-desktop/issues)
- - The [Bisq forum]( https://bisq.community)
- - The [#bisq](https://webchat.freenode.net/?channels=bisq) IRC channel on Freenode
- - Our [contributor mailing list](https://lists.bisq.network/listinfo/bisq-contrib)
- - [@bisq_network](https://twitter.com/bisq_network) on Twitter
- - The [Bisq newsletter](https://eepurl.com/5uQf9)
-
-
-License
--------
-
-Bisq is [free software](https://www.gnu.org/philosophy/free-sw.html), licensed under version 3 of the [GNU Affero General Public License](https://gnu.org/licenses/agpl.html).
-
-In short, this means you are free to fork this repository and do anything with it that you please. However, if you _distribute_ your changes, i.e. create your own build of the software and make it available for others to use, you must:
-
- 1. Publish your changes under the same license, so as to ensure the software remains free.
- 2. Use a name and logo substantially different than "Bisq" and the Bisq logo seen here. This allows for competition without confusion.
-
-See [LICENSE](LICENSE) for complete details.
+Go to `File->Open...` and choose this `build.gradle` file. Accept all defaults and click OK. The project should import without errors.
