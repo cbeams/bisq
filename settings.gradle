@@ -1,4 +1,5 @@
 include 'common'
+include 'core'
 include 'fx'
 
 rootProject.name = 'bisq'

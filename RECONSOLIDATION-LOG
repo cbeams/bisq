@@ -13,10 +13,19 @@ $ vi settings.gradle and prefix all subprojects as bisq-*
 # zero out top-level README and replace with basic build / run / IDEA config and import instructions
 # including the bit from bisq-common's README about idea.max.intellisense.filesize=12500
 
-$ git clone bisq-network/common common && cd common
+$ git clone bisq-network/bisq-common common && cd common
 $ git clean -dfx
 $ rm -rf .editorconfig .git .gitignore .gradle gradle gradlew* settings.gradle LICENSE README.md CONTRIBUTING.md .travis.yml .idea
 # import common into top-level settings.gradle
-# change dependency in top level build.gradle to project ':common'
+# change dependency in fx/build.gradle to project ':common'
 $ gradle clean build # from root
 # check it all in
+
+$ git clone bisq-network/bisq-core && cd core
+$ rm -rf .editorconfig .git .gitignore .idea .travis.yml CONTRIBUTING.md LICENSE README.md gradle gradle.properties gradlew* settings.gradle
+# import core into top-level settings.gradle
+# change dependency in fx/build.gradle to project ':core'
+$ gradle clean build # from root
+# commit
+# change dependency in build.gradle to project ':common'
+# commit
