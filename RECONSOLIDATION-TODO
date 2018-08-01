@@ -1,12 +1,12 @@
-copy: assets  core  monitor  p2p  pricenode  relay  seednode  statsnode
+copy: assets  monitor  pricenode  relay  seednode  statsnode
 git clean subdirs
 remove .git dirs
 remove redundant LICENSE files, gradle wrappers, etc
-rename p2p => net
 rename relay => ?
 clean up / deduplicate build files
 upgradle to gradle 4.9
 repackage bisq.desktop => bisq.fx
+repackage bisq.network => bisq.net
 delombok
 gource
 codeowners

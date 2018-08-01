@@ -40,7 +40,7 @@ repositories {
 }
 
 dependencies {
-    compile 'network.bisq:bisq-p2p:-SNAPSHOT'
+    compile project(':bisq-net')
     compile project(':bisq-core')
     compile project(':bisq-common')
     compile 'org.controlsfx:controlsfx:8.0.6_20'

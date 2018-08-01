@@ -17,15 +17,23 @@ $ git clone bisq-network/bisq-common common && cd common
 $ git clean -dfx
 $ rm -rf .editorconfig .git .gitignore .gradle gradle gradlew* settings.gradle LICENSE README.md CONTRIBUTING.md .travis.yml .idea
 # import common into top-level settings.gradle
-# change dependency in fx/build.gradle to project ':common'
+# change dependency in fx/build.gradle to project ':bisq-common'
 $ gradle clean build # from root
 # check it all in
 
 $ git clone bisq-network/bisq-core && cd core
 $ rm -rf .editorconfig .git .gitignore .idea .travis.yml CONTRIBUTING.md LICENSE README.md gradle gradle.properties gradlew* settings.gradle
 # import core into top-level settings.gradle
-# change dependency in fx/build.gradle to project ':core'
+# change dependency in fx/build.gradle to project ':bisq-core'
 $ gradle clean build # from root
 # commit
-# change dependency in build.gradle to project ':common'
+
+$ git clone bisq-network/bisq-p2p net && cd net
+$ rm -rf .editorconfig .git .gitignore .idea .travis.yml CONTRIBUTING.md LICENSE README.md gradle gradle.properties gradlew* settings.gradle
+# import net into top-level settings.gradle
+# change dependency in fx/build.gradle to project ':bisq-net'
+# change dependency in core/build.gradle to project ':bisq-net'
+$ gradle clean build # from root
+# commit
+# change dependency in (net) build.gradle to project ':common'
 # commit
