@@ -4,6 +4,7 @@ remove .git dirs
 remove redundant LICENSE files, gradle wrappers, etc
 rename p2p => net
 rename relay => ?
+clean up / deduplicate build files
 upgradle to gradle 4.9
 repackage bisq.desktop => bisq.fx
 delombok
