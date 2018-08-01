@@ -42,7 +42,7 @@ repositories {
 dependencies {
     compile 'network.bisq:bisq-p2p:-SNAPSHOT'
     compile 'network.bisq:bisq-core:-SNAPSHOT'
-    compile 'network.bisq:bisq-common:-SNAPSHOT'
+    project ':bisq-common'
     compile 'org.controlsfx:controlsfx:8.0.6_20'
     compile 'org.reactfx:reactfx:2.0-M3'
     compile 'net.glxn:qrgen:1.3'
