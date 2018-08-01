@@ -10,6 +10,7 @@ repackage bisq.network => bisq.net
 delombok
 gource
 codeowners
+clean up .gitignore
 do away with bisq-btcnode repository; just check shared bitcoin.conf into the
     main repo somewhere that makes sense
 s101
