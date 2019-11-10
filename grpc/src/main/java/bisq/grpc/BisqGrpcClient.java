@@ -17,8 +17,10 @@
 
 package bisq.grpc;
 
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,6 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import bisq.grpc.protobuf.GetBalanceGrpc;
 import bisq.grpc.protobuf.GetBalanceRequest;
+import bisq.grpc.protobuf.GetTradeStatisticsGrpc;
+import bisq.grpc.protobuf.GetTradeStatisticsRequest;
 import bisq.grpc.protobuf.GetVersionGrpc;
 import bisq.grpc.protobuf.GetVersionRequest;
 import bisq.grpc.protobuf.StopServerGrpc;
@@ -33,9 +37,14 @@ import bisq.grpc.protobuf.StopServerRequest;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
+import protobuf.TradeStatistics2;
 
 /**
  * gRPC client.
+ *
+ * FIXME We get warning 'DEBUG io.grpc.netty.shaded.io.netty.util.internal.PlatformDependent0 - direct buffer constructor: unavailable
+ * java.lang.UnsupportedOperationException: Reflective setAccessible(true) disabled' which is
+ * related to Java 10 changes. Requests are working but we should find out why we get that warning
  */
 @Slf4j
 public class BisqGrpcClient {
@@ -43,6 +52,7 @@ public class BisqGrpcClient {
     private final GetVersionGrpc.GetVersionBlockingStub getVersionStub;
     private final GetBalanceGrpc.GetBalanceBlockingStub getBalanceStub;
     private final StopServerGrpc.StopServerBlockingStub stopServerStub;
+    private final GetTradeStatisticsGrpc.GetTradeStatisticsBlockingStub getTradeStatisticsStub;
 
     public static void main(String[] args) throws Exception {
         BisqGrpcClient client = new BisqGrpcClient("localhost", 8888);
@@ -55,6 +65,12 @@ public class BisqGrpcClient {
                     result = client.getVersion();
                 } else if (input.equals("getBalance")) {
                     result = String.valueOf(client.getBalance());
+                } else if (input.equals("getTradeStatistics")) {
+                    List<TradeStatistics2> tradeStatistics = client.getTradeStatistics();
+                    List<bisq.core.trade.statistics.TradeStatistics2> list = tradeStatistics.stream()
+                            .map(bisq.core.trade.statistics.TradeStatistics2::fromProto)
+                            .collect(Collectors.toList());
+                    result = list.toString();
                 } else if (input.equals("stop")) {
                     result = "Shut down client";
                     client.shutdown();
@@ -84,6 +100,7 @@ public class BisqGrpcClient {
         this.channel = channel;
         getVersionStub = GetVersionGrpc.newBlockingStub(channel);
         getBalanceStub = GetBalanceGrpc.newBlockingStub(channel);
+        getTradeStatisticsStub = GetTradeStatisticsGrpc.newBlockingStub(channel);
         stopServerStub = StopServerGrpc.newBlockingStub(channel);
     }
 
@@ -103,6 +120,16 @@ public class BisqGrpcClient {
         } catch (StatusRuntimeException e) {
             log.warn("RPC failed: {}", e.getStatus());
             return -1;
+        }
+    }
+
+    private List<protobuf.TradeStatistics2> getTradeStatistics() {
+        GetTradeStatisticsRequest request = GetTradeStatisticsRequest.newBuilder().build();
+        try {
+            return getTradeStatisticsStub.getTradeStatistics(request).getTradeStatisticsList();
+        } catch (StatusRuntimeException e) {
+            log.warn("RPC failed: {}", e.getStatus());
+            return null;
         }
     }
 

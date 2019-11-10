@@ -80,7 +80,7 @@ public class BisqGrpcServerMain extends BisqHeadlessAppMain implements BisqSetup
 
     @Override
     public void onSetupComplete() {
-        final CoreApi coreApi = injector.getInstance(CoreApi.class);
+        CoreApi coreApi = injector.getInstance(CoreApi.class);
         bisqGrpcServer = new BisqGrpcServer(coreApi);
 
         // If we start headless we need to keep the main thread busy...

@@ -19,10 +19,15 @@ package bisq.core;
 
 import bisq.core.btc.Balances;
 import bisq.core.presentation.BalancePresentation;
+import bisq.core.trade.statistics.TradeStatistics2;
+import bisq.core.trade.statistics.TradeStatisticsManager;
 
 import bisq.common.app.Version;
 
 import javax.inject.Inject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Provides high level interface to functionality of core Bisq features.
@@ -31,11 +36,15 @@ import javax.inject.Inject;
 public class CoreApi {
     private final Balances balances;
     private final BalancePresentation balancePresentation;
+    private final TradeStatisticsManager tradeStatisticsManager;
 
     @Inject
-    public CoreApi(Balances balances, BalancePresentation balancePresentation) {
+    public CoreApi(Balances balances,
+                   BalancePresentation balancePresentation,
+                   TradeStatisticsManager tradeStatisticsManager) {
         this.balances = balances;
         this.balancePresentation = balancePresentation;
+        this.tradeStatisticsManager = tradeStatisticsManager;
     }
 
     public String getVersion() {
@@ -48,5 +57,9 @@ public class CoreApi {
 
     public String getAvailableBalanceAsString() {
         return balancePresentation.getAvailableBalance().get();
+    }
+
+    public List<TradeStatistics2> getTradeStatistics() {
+        return new ArrayList<>(tradeStatisticsManager.getObservableTradeStatisticsSet());
     }
 }

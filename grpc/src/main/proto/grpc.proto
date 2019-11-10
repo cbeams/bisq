@@ -18,6 +18,9 @@
 syntax = "proto3";
 package io.bisq.protobuffer;
 
+// FIXME: IntelliJ does not recognize the import but the compiler does
+import "pb.proto";
+
 option java_package = "bisq.grpc.protobuf";
 option java_multiple_files = true;
 
@@ -30,6 +33,12 @@ service GetBalance {
     rpc GetBalance (GetBalanceRequest) returns (GetBalanceReply) {
     }
 }
+
+service GetTradeStatistics {
+    rpc GetTradeStatistics (GetTradeStatisticsRequest) returns (GetTradeStatisticsReply) {
+    }
+}
+
 service StopServer {
     rpc StopServer (StopServerRequest) returns (StopServerReply) {
     }
@@ -47,6 +56,14 @@ message GetBalanceRequest {
 
 message GetBalanceReply {
     uint64 balance = 1;
+}
+
+message GetTradeStatisticsRequest {
+}
+
+// FIXME: IntelliJ does not recognize the imported TradeStatistics2 but the compiler does
+message GetTradeStatisticsReply {
+    repeated TradeStatistics2 TradeStatistics = 1;
 }
 
 message StopServerRequest {

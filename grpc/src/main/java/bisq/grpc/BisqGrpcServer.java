@@ -18,8 +18,12 @@
 package bisq.grpc;
 
 import bisq.core.CoreApi;
+import bisq.core.trade.statistics.TradeStatistics2;
 
 import java.io.IOException;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,6 +32,9 @@ import lombok.extern.slf4j.Slf4j;
 import bisq.grpc.protobuf.GetBalanceGrpc;
 import bisq.grpc.protobuf.GetBalanceReply;
 import bisq.grpc.protobuf.GetBalanceRequest;
+import bisq.grpc.protobuf.GetTradeStatisticsGrpc;
+import bisq.grpc.protobuf.GetTradeStatisticsReply;
+import bisq.grpc.protobuf.GetTradeStatisticsRequest;
 import bisq.grpc.protobuf.GetVersionGrpc;
 import bisq.grpc.protobuf.GetVersionReply;
 import bisq.grpc.protobuf.GetVersionRequest;
@@ -72,7 +79,12 @@ public class BisqGrpcServer {
     private void start() throws IOException {
         /* The port on which the server should run */
         int port = 8888;
-        server = ServerBuilder.forPort(port).addService(new GetVersionImpl()).addService(new GetBalanceImpl()).addService(new StopServerImpl()).build().start();
+        server = ServerBuilder.forPort(port)
+                .addService(new GetVersionImpl())
+                .addService(new GetBalanceImpl())
+                .addService(new GetTradeStatisticsImpl())
+                .addService(new StopServerImpl())
+                .build().start();
         log.info("Server started, listening on " + port);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             // Use stderr here since the logger may have been reset by its JVM shutdown hook.
@@ -109,6 +121,21 @@ public class BisqGrpcServer {
         @Override
         public void getBalance(GetBalanceRequest req, StreamObserver<GetBalanceReply> responseObserver) {
             GetBalanceReply reply = GetBalanceReply.newBuilder().setBalance(getCoreApi().getAvailableBalance()).build();
+            responseObserver.onNext(reply);
+            responseObserver.onCompleted();
+        }
+    }
+
+    static class GetTradeStatisticsImpl extends GetTradeStatisticsGrpc.GetTradeStatisticsImplBase {
+        @Override
+        public void getTradeStatistics(GetTradeStatisticsRequest req,
+                                       StreamObserver<GetTradeStatisticsReply> responseObserver) {
+
+            List<protobuf.TradeStatistics2> tradeStatistics = getCoreApi().getTradeStatistics().stream()
+                    .map(TradeStatistics2::toTradeStatistics2)
+                    .collect(Collectors.toList());
+
+            GetTradeStatisticsReply reply = GetTradeStatisticsReply.newBuilder().addAllTradeStatistics(tradeStatistics).build();
             responseObserver.onNext(reply);
             responseObserver.onCompleted();
         }
