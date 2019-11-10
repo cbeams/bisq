@@ -24,23 +24,12 @@ import "pb.proto";
 option java_package = "bisq.grpc.protobuf";
 option java_multiple_files = true;
 
+///////////////////////////////////////////////////////////////////////////////////////////
+// Version
+///////////////////////////////////////////////////////////////////////////////////////////
+
 service GetVersion {
     rpc GetVersion (GetVersionRequest) returns (GetVersionReply) {
-    }
-}
-
-service GetBalance {
-    rpc GetBalance (GetBalanceRequest) returns (GetBalanceReply) {
-    }
-}
-
-service GetTradeStatistics {
-    rpc GetTradeStatistics (GetTradeStatisticsRequest) returns (GetTradeStatisticsReply) {
-    }
-}
-
-service StopServer {
-    rpc StopServer (StopServerRequest) returns (StopServerReply) {
     }
 }
 
@@ -51,11 +40,29 @@ message GetVersionReply {
     string version = 1;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////
+// Balance
+///////////////////////////////////////////////////////////////////////////////////////////
+
+service GetBalance {
+    rpc GetBalance (GetBalanceRequest) returns (GetBalanceReply) {
+    }
+}
+
 message GetBalanceRequest {
 }
 
 message GetBalanceReply {
     uint64 balance = 1;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+// TradeStatistics
+///////////////////////////////////////////////////////////////////////////////////////////
+
+service GetTradeStatistics {
+    rpc GetTradeStatistics (GetTradeStatisticsRequest) returns (GetTradeStatisticsReply) {
+    }
 }
 
 message GetTradeStatisticsRequest {
@@ -64,6 +71,32 @@ message GetTradeStatisticsRequest {
 // FIXME: IntelliJ does not recognize the imported TradeStatistics2 but the compiler does
 message GetTradeStatisticsReply {
     repeated TradeStatistics2 TradeStatistics = 1;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+// Offer
+///////////////////////////////////////////////////////////////////////////////////////////
+
+service GetOffers {
+    rpc GetOffers (GetOffersRequest) returns (GetOffersReply) {
+    }
+}
+
+message GetOffersRequest {
+}
+
+// FIXME: IntelliJ does not recognize the imported Offer2 but the compiler does
+message GetOffersReply {
+    repeated Offer offers = 1;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+// StopServer
+///////////////////////////////////////////////////////////////////////////////////////////
+
+service StopServer {
+    rpc StopServer (StopServerRequest) returns (StopServerReply) {
+    }
 }
 
 message StopServerRequest {

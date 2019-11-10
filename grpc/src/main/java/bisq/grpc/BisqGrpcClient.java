@@ -30,6 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import bisq.grpc.protobuf.GetBalanceGrpc;
 import bisq.grpc.protobuf.GetBalanceRequest;
+import bisq.grpc.protobuf.GetOffersGrpc;
+import bisq.grpc.protobuf.GetOffersRequest;
 import bisq.grpc.protobuf.GetTradeStatisticsGrpc;
 import bisq.grpc.protobuf.GetTradeStatisticsRequest;
 import bisq.grpc.protobuf.GetVersionGrpc;
@@ -39,7 +41,6 @@ import bisq.grpc.protobuf.StopServerRequest;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
-import protobuf.TradeStatistics2;
 
 /**
  * gRPC client.
@@ -57,6 +58,7 @@ public class BisqGrpcClient {
     private final GetBalanceGrpc.GetBalanceBlockingStub getBalanceStub;
     private final StopServerGrpc.StopServerBlockingStub stopServerStub;
     private final GetTradeStatisticsGrpc.GetTradeStatisticsBlockingStub getTradeStatisticsStub;
+    private final GetOffersGrpc.GetOffersBlockingStub getOffersStub;
 
     public static void main(String[] args) throws Exception {
         instance = new BisqGrpcClient("localhost", 8888);
@@ -82,12 +84,18 @@ public class BisqGrpcClient {
                         result = Coin.valueOf(getBalance()).toFriendlyString();
                         break;
                     case "getTradeStatistics":
-                        List<TradeStatistics2> tradeStatistics = getTradeStatistics();
-                        List<bisq.core.trade.statistics.TradeStatistics2> list = tradeStatistics.stream()
+                        List<bisq.core.trade.statistics.TradeStatistics2> tradeStatistics = getTradeStatistics().stream()
                                 .map(bisq.core.trade.statistics.TradeStatistics2::fromProto)
                                 .collect(Collectors.toList());
 
-                        result = list.toString();
+                        result = tradeStatistics.toString();
+                        break;
+                    case "getOffers":
+                        List<bisq.core.offer.Offer> offers = getOffers().stream()
+                                .map(bisq.core.offer.Offer::fromProto)
+                                .collect(Collectors.toList());
+
+                        result = offers.toString();
                         break;
                     case "stop":
                         result = "Shut down client";
@@ -119,6 +127,7 @@ public class BisqGrpcClient {
         getVersionStub = GetVersionGrpc.newBlockingStub(channel);
         getBalanceStub = GetBalanceGrpc.newBlockingStub(channel);
         getTradeStatisticsStub = GetTradeStatisticsGrpc.newBlockingStub(channel);
+        getOffersStub = GetOffersGrpc.newBlockingStub(channel);
         stopServerStub = StopServerGrpc.newBlockingStub(channel);
     }
 
@@ -145,6 +154,16 @@ public class BisqGrpcClient {
         GetTradeStatisticsRequest request = GetTradeStatisticsRequest.newBuilder().build();
         try {
             return getTradeStatisticsStub.getTradeStatistics(request).getTradeStatisticsList();
+        } catch (StatusRuntimeException e) {
+            log.warn("RPC failed: {}", e.getStatus());
+            return null;
+        }
+    }
+
+    private List<protobuf.Offer> getOffers() {
+        GetOffersRequest request = GetOffersRequest.newBuilder().build();
+        try {
+            return getOffersStub.getOffers(request).getOffersList();
         } catch (StatusRuntimeException e) {
             log.warn("RPC failed: {}", e.getStatus());
             return null;

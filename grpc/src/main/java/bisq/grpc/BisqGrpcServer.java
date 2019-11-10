@@ -18,6 +18,7 @@
 package bisq.grpc;
 
 import bisq.core.CoreApi;
+import bisq.core.offer.Offer;
 import bisq.core.trade.statistics.TradeStatistics2;
 
 import java.io.IOException;
@@ -32,6 +33,9 @@ import lombok.extern.slf4j.Slf4j;
 import bisq.grpc.protobuf.GetBalanceGrpc;
 import bisq.grpc.protobuf.GetBalanceReply;
 import bisq.grpc.protobuf.GetBalanceRequest;
+import bisq.grpc.protobuf.GetOffersGrpc;
+import bisq.grpc.protobuf.GetOffersReply;
+import bisq.grpc.protobuf.GetOffersRequest;
 import bisq.grpc.protobuf.GetTradeStatisticsGrpc;
 import bisq.grpc.protobuf.GetTradeStatisticsReply;
 import bisq.grpc.protobuf.GetTradeStatisticsRequest;
@@ -89,6 +93,20 @@ public class BisqGrpcServer {
                     .collect(Collectors.toList());
 
             GetTradeStatisticsReply reply = GetTradeStatisticsReply.newBuilder().addAllTradeStatistics(tradeStatistics).build();
+            responseObserver.onNext(reply);
+            responseObserver.onCompleted();
+        }
+    }
+
+    static class GetOffersImpl extends GetOffersGrpc.GetOffersImplBase {
+        @Override
+        public void getOffers(GetOffersRequest req, StreamObserver<GetOffersReply> responseObserver) {
+
+            List<protobuf.Offer> tradeStatistics = coreApi.getOffers().stream()
+                    .map(Offer::toProtoMessage)
+                    .collect(Collectors.toList());
+
+            GetOffersReply reply = GetOffersReply.newBuilder().addAllOffers(tradeStatistics).build();
             responseObserver.onNext(reply);
             responseObserver.onCompleted();
         }
@@ -157,6 +175,7 @@ public class BisqGrpcServer {
                 .addService(new GetVersionImpl())
                 .addService(new GetBalanceImpl())
                 .addService(new GetTradeStatisticsImpl())
+                .addService(new GetOffersImpl())
                 .addService(new StopServerImpl())
                 .build()
                 .start();

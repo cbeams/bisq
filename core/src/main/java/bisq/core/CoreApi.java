@@ -18,6 +18,8 @@
 package bisq.core;
 
 import bisq.core.btc.Balances;
+import bisq.core.offer.Offer;
+import bisq.core.offer.OfferBookService;
 import bisq.core.presentation.BalancePresentation;
 import bisq.core.trade.statistics.TradeStatistics2;
 import bisq.core.trade.statistics.TradeStatisticsManager;
@@ -36,14 +38,17 @@ import java.util.List;
 public class CoreApi {
     private final Balances balances;
     private final BalancePresentation balancePresentation;
+    private final OfferBookService offerBookService;
     private final TradeStatisticsManager tradeStatisticsManager;
 
     @Inject
     public CoreApi(Balances balances,
                    BalancePresentation balancePresentation,
+                   OfferBookService offerBookService,
                    TradeStatisticsManager tradeStatisticsManager) {
         this.balances = balances;
         this.balancePresentation = balancePresentation;
+        this.offerBookService = offerBookService;
         this.tradeStatisticsManager = tradeStatisticsManager;
     }
 
@@ -61,5 +66,9 @@ public class CoreApi {
 
     public List<TradeStatistics2> getTradeStatistics() {
         return new ArrayList<>(tradeStatisticsManager.getObservableTradeStatisticsSet());
+    }
+
+    public List<Offer> getOffers() {
+        return offerBookService.getOffers();
     }
 }
