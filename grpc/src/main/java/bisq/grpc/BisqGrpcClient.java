@@ -22,12 +22,14 @@ import java.util.concurrent.TimeUnit;
 
 import lombok.extern.slf4j.Slf4j;
 
-import bisq.grpc.protobuf.GetBalanceRequest;
-import bisq.grpc.protobuf.GetVersionRequest;
-import bisq.grpc.protobuf.StopServerRequest;
+
+
 import bisq.grpc.protobuf.GetBalanceGrpc;
+import bisq.grpc.protobuf.GetBalanceRequest;
 import bisq.grpc.protobuf.GetVersionGrpc;
+import bisq.grpc.protobuf.GetVersionRequest;
 import bisq.grpc.protobuf.StopServerGrpc;
+import bisq.grpc.protobuf.StopServerRequest;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
@@ -43,7 +45,7 @@ public class BisqGrpcClient {
     private final StopServerGrpc.StopServerBlockingStub stopServerStub;
 
     public static void main(String[] args) throws Exception {
-        BisqGrpcClient client = new BisqGrpcClient("localhost", 50051);
+        BisqGrpcClient client = new BisqGrpcClient("localhost", 8888);
         try (Scanner scanner = new Scanner(System.in);) {
             while (true) {
                 String input = scanner.nextLine();

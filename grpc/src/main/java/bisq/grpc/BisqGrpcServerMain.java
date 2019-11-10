@@ -18,13 +18,23 @@
 package bisq.grpc;
 
 import bisq.core.CoreApi;
+import bisq.core.CoreModule;
 import bisq.core.app.BisqExecutable;
 import bisq.core.app.BisqHeadlessAppMain;
 import bisq.core.app.BisqSetup;
 
 import bisq.common.UserThread;
+import bisq.common.app.AppModule;
 import bisq.common.setup.CommonSetup;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 /**
  * Main class to start gRPC server with a headless BisqGrpcApp instance.
  */
@@ -41,6 +51,19 @@ public class BisqGrpcServerMain extends BisqHeadlessAppMain implements BisqSetup
         }
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    // First synchronous execution tasks
+    ///////////////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    protected void configUserThread() {
+        final ThreadFactory threadFactory = new ThreadFactoryBuilder()
+                .setNameFormat(this.getClass().getSimpleName())
+                .setDaemon(true)
+                .build();
+        UserThread.setExecutor(Executors.newSingleThreadExecutor(threadFactory));
+    }
+
     @Override
     protected void launchApplication() {
         headlessApp = new BisqGrpcApp();
@@ -50,10 +73,9 @@ public class BisqGrpcServerMain extends BisqHeadlessAppMain implements BisqSetup
     }
 
     @Override
-    protected void onApplicationStarted() {
-        BisqSetup bisqSetup = injector.getInstance(BisqSetup.class);
-        bisqSetup.addBisqSetupListener(this);
-        bisqSetup.start();
+    protected void onApplicationLaunched() {
+        super.onApplicationLaunched();
+        headlessApp.setGracefulShutDownHandler(this);
     }
 
     @Override
@@ -67,5 +89,31 @@ public class BisqGrpcServerMain extends BisqHeadlessAppMain implements BisqSetup
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    // We continue with a series of synchronous execution tasks
+    ///////////////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    protected AppModule getModule() {
+        return new CoreModule(bisqEnvironment);
+    }
+
+    @Override
+    protected void applyInjector() {
+        super.applyInjector();
+
+        headlessApp.setInjector(injector);
+    }
+
+    @Override
+    protected void startApplication() {
+        // We need to be in user thread! We mapped at launchApplication already...
+        headlessApp.startApplication();
+
+        // In headless mode we don't have an async behaviour so we trigger the setup by calling onApplicationStarted
+        onApplicationStarted();
     }
 }

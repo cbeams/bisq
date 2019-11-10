@@ -23,15 +23,17 @@ import java.io.IOException;
 
 import lombok.extern.slf4j.Slf4j;
 
+
+
+import bisq.grpc.protobuf.GetBalanceGrpc;
 import bisq.grpc.protobuf.GetBalanceReply;
 import bisq.grpc.protobuf.GetBalanceRequest;
-import bisq.grpc.protobuf.GetBalanceGrpc;
+import bisq.grpc.protobuf.GetVersionGrpc;
 import bisq.grpc.protobuf.GetVersionReply;
 import bisq.grpc.protobuf.GetVersionRequest;
-import bisq.grpc.protobuf.GetVersionGrpc;
+import bisq.grpc.protobuf.StopServerGrpc;
 import bisq.grpc.protobuf.StopServerReply;
 import bisq.grpc.protobuf.StopServerRequest;
-import bisq.grpc.protobuf.StopServerGrpc;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
@@ -69,7 +71,7 @@ public class BisqGrpcServer {
 
     private void start() throws IOException {
         /* The port on which the server should run */
-        int port = 50051;
+        int port = 8888;
         server = ServerBuilder.forPort(port).addService(new GetVersionImpl()).addService(new GetBalanceImpl()).addService(new StopServerImpl()).build().start();
         log.info("Server started, listening on " + port);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
