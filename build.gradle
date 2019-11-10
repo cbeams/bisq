@@ -272,7 +272,6 @@ configure(project(':core')) {
     }
 }
 
-
 configure(project(':desktop')) {
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'witness'
@@ -291,6 +290,7 @@ configure(project(':desktop')) {
 
     dependencies {
         compile project(':core')
+        compile project(':grpc')
         compile "net.glxn:qrgen:$qrgenVersion"
         compile "de.jensd:fontawesomefx:$fontawesomefxVersion"
         compile "de.jensd:fontawesomefx-commons:$fontawesomefxCommonsVersion"
