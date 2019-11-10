@@ -56,62 +56,15 @@ public class BisqGrpcServer {
     private static BisqGrpcServer instance;
     private static CoreApi coreApi;
 
-    private static BisqGrpcServer getInstance() {
-        return instance;
-    }
 
-    private static CoreApi getCoreApi() {
-        return coreApi;
-    }
-
-    public BisqGrpcServer(CoreApi coreApi) {
-        instance = this;
-        BisqGrpcServer.coreApi = coreApi;
-
-        try {
-            start();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void start() throws IOException {
-        /* The port on which the server should run */
-        int port = 8888;
-        server = ServerBuilder.forPort(port)
-                .addService(new GetVersionImpl())
-                .addService(new GetBalanceImpl())
-                .addService(new GetTradeStatisticsImpl())
-                .addService(new StopServerImpl())
-                .build().start();
-        log.info("Server started, listening on " + port);
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            // Use stderr here since the logger may have been reset by its JVM shutdown hook.
-            log.error("*** shutting down gRPC server since JVM is shutting down");
-            BisqGrpcServer.this.stop();
-            log.error("*** server shut down");
-        }));
-    }
-
-    public void stop() {
-        if (server != null) server.shutdown();
-    }
-
-    /**
-     * Await termination on the main thread since the grpc library uses daemon threads.
-     */
-    public void blockUntilShutdown() throws InterruptedException {
-        if (server != null) {
-            server.awaitTermination();
-        }
-    }
-
+    ///////////////////////////////////////////////////////////////////////////////////////////
     // Services
+    ///////////////////////////////////////////////////////////////////////////////////////////
+
     static class GetVersionImpl extends GetVersionGrpc.GetVersionImplBase {
         @Override
         public void getVersion(GetVersionRequest req, StreamObserver<GetVersionReply> responseObserver) {
-            GetVersionReply reply = GetVersionReply.newBuilder().setVersion(getCoreApi().getVersion()).build();
+            GetVersionReply reply = GetVersionReply.newBuilder().setVersion(coreApi.getVersion()).build();
             responseObserver.onNext(reply);
             responseObserver.onCompleted();
         }
@@ -120,7 +73,7 @@ public class BisqGrpcServer {
     static class GetBalanceImpl extends GetBalanceGrpc.GetBalanceImplBase {
         @Override
         public void getBalance(GetBalanceRequest req, StreamObserver<GetBalanceReply> responseObserver) {
-            GetBalanceReply reply = GetBalanceReply.newBuilder().setBalance(getCoreApi().getAvailableBalance()).build();
+            GetBalanceReply reply = GetBalanceReply.newBuilder().setBalance(coreApi.getAvailableBalance()).build();
             responseObserver.onNext(reply);
             responseObserver.onCompleted();
         }
@@ -131,7 +84,7 @@ public class BisqGrpcServer {
         public void getTradeStatistics(GetTradeStatisticsRequest req,
                                        StreamObserver<GetTradeStatisticsReply> responseObserver) {
 
-            List<protobuf.TradeStatistics2> tradeStatistics = getCoreApi().getTradeStatistics().stream()
+            List<protobuf.TradeStatistics2> tradeStatistics = coreApi.getTradeStatistics().stream()
                     .map(TradeStatistics2::toTradeStatistics2)
                     .collect(Collectors.toList());
 
@@ -148,7 +101,72 @@ public class BisqGrpcServer {
             responseObserver.onNext(reply);
             responseObserver.onCompleted();
 
-            getInstance().stop();
+            instance.stop();
         }
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    // Constructor
+    ///////////////////////////////////////////////////////////////////////////////////////////
+
+    public BisqGrpcServer(CoreApi coreApi) {
+        instance = this;
+
+        BisqGrpcServer.coreApi = coreApi;
+
+        try {
+            start();
+
+        } catch (IOException e) {
+            log.error(e.toString(), e);
+        }
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    // API
+    ///////////////////////////////////////////////////////////////////////////////////////////
+
+    public void stop() {
+        if (server != null) {
+            server.shutdown();
+        }
+    }
+
+    /**
+     * Await termination on the main thread since the grpc library uses daemon threads.
+     * Only used for headless version
+     */
+    void blockUntilShutdown() throws InterruptedException {
+        if (server != null) {
+            server.awaitTermination();
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    // Private
+    ///////////////////////////////////////////////////////////////////////////////////////////
+
+    private void start() throws IOException {
+        // TODO add to options
+        int port = 8888;
+
+        // Config services
+        server = ServerBuilder.forPort(port)
+                .addService(new GetVersionImpl())
+                .addService(new GetBalanceImpl())
+                .addService(new GetTradeStatisticsImpl())
+                .addService(new StopServerImpl())
+                .build()
+                .start();
+
+        log.info("Server started, listening on " + port);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            // Use stderr here since the logger may have been reset by its JVM shutdown hook.
+            log.error("*** shutting down gRPC server since JVM is shutting down");
+            BisqGrpcServer.this.stop();
+            log.error("*** server shut down");
+        }));
     }
 }

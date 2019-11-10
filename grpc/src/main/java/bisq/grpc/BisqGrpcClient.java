@@ -17,6 +17,8 @@
 
 package bisq.grpc;
 
+import org.bitcoinj.core.Coin;
+
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -48,6 +50,8 @@ import protobuf.TradeStatistics2;
  */
 @Slf4j
 public class BisqGrpcClient {
+    private static BisqGrpcClient instance;
+
     private final ManagedChannel channel;
     private final GetVersionGrpc.GetVersionBlockingStub getVersionStub;
     private final GetBalanceGrpc.GetBalanceBlockingStub getBalanceStub;
@@ -55,35 +59,7 @@ public class BisqGrpcClient {
     private final GetTradeStatisticsGrpc.GetTradeStatisticsBlockingStub getTradeStatisticsStub;
 
     public static void main(String[] args) throws Exception {
-        BisqGrpcClient client = new BisqGrpcClient("localhost", 8888);
-        try (Scanner scanner = new Scanner(System.in);) {
-            while (true) {
-                String input = scanner.nextLine();
-                String result = "";
-                long startTs = System.currentTimeMillis();
-                if (input.equals("getVersion")) {
-                    result = client.getVersion();
-                } else if (input.equals("getBalance")) {
-                    result = String.valueOf(client.getBalance());
-                } else if (input.equals("getTradeStatistics")) {
-                    List<TradeStatistics2> tradeStatistics = client.getTradeStatistics();
-                    List<bisq.core.trade.statistics.TradeStatistics2> list = tradeStatistics.stream()
-                            .map(bisq.core.trade.statistics.TradeStatistics2::fromProto)
-                            .collect(Collectors.toList());
-                    result = list.toString();
-                } else if (input.equals("stop")) {
-                    result = "Shut down client";
-                    client.shutdown();
-                } else if (input.equals("stopServer")) {
-                    client.stopServer();
-                    result = "Server stopped";
-                }
-
-                // First response is rather slow (300 ms) but following responses are fast (3-5 ms).
-                log.info("Request took: {} ms", System.currentTimeMillis() - startTs);
-                System.out.println(result);
-            }
-        }
+        instance = new BisqGrpcClient("localhost", 8888);
     }
 
     private BisqGrpcClient(String host, int port) {
@@ -91,6 +67,47 @@ public class BisqGrpcClient {
                 // Channels are secure by default (via SSL/TLS). For the example we disable TLS to avoid
                 // needing certificates.
                 .usePlaintext(true).build());
+
+        try (Scanner scanner = new Scanner(System.in);) {
+            while (true) {
+                String input = scanner.nextLine();
+                String result = "";
+                long startTs = System.currentTimeMillis();
+
+                switch (input) {
+                    case "getVersion":
+                        result = getVersion();
+                        break;
+                    case "getBalance":
+                        result = Coin.valueOf(getBalance()).toFriendlyString();
+                        break;
+                    case "getTradeStatistics":
+                        List<TradeStatistics2> tradeStatistics = getTradeStatistics();
+                        List<bisq.core.trade.statistics.TradeStatistics2> list = tradeStatistics.stream()
+                                .map(bisq.core.trade.statistics.TradeStatistics2::fromProto)
+                                .collect(Collectors.toList());
+
+                        result = list.toString();
+                        break;
+                    case "stop":
+                        result = "Shut down client";
+                        try {
+                            shutdown();
+                        } catch (InterruptedException e) {
+                            log.error(e.toString(), e);
+                        }
+                        break;
+                    case "stopServer":
+                        stopServer();
+                        result = "Server stopped";
+                        break;
+                }
+
+                // First response is rather slow (300 ms) but following responses are fast (3-5 ms).
+                log.info("Request took: {} ms", System.currentTimeMillis() - startTs);
+                log.info(result);
+            }
+        }
     }
 
     /**
@@ -98,6 +115,7 @@ public class BisqGrpcClient {
      */
     private BisqGrpcClient(ManagedChannel channel) {
         this.channel = channel;
+
         getVersionStub = GetVersionGrpc.newBlockingStub(channel);
         getBalanceStub = GetBalanceGrpc.newBlockingStub(channel);
         getTradeStatisticsStub = GetTradeStatisticsGrpc.newBlockingStub(channel);
