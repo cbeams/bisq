@@ -30,6 +30,7 @@ import bisq.core.btc.wallet.Restrictions;
 import bisq.core.filter.FilterManager;
 import bisq.core.locale.CurrencyUtil;
 import bisq.core.locale.TradeCurrency;
+import bisq.core.offer.CreateOfferService;
 import bisq.core.offer.Offer;
 import bisq.core.offer.OfferPayload;
 import bisq.core.offer.OpenOffer;
@@ -77,6 +78,7 @@ class EditOfferDataModel extends MutableOfferDataModel {
                        BSFormatter btcFormatter,
                        CorePersistenceProtoResolver corePersistenceProtoResolver,
                        MakerFeeProvider makerFeeProvider,
+                       CreateOfferService createOfferService,
                        Navigation navigation) {
         super(openOfferManager,
                 btcWalletService,
@@ -93,6 +95,7 @@ class EditOfferDataModel extends MutableOfferDataModel {
                 referralIdService,
                 btcFormatter,
                 makerFeeProvider,
+                createOfferService,
                 navigation);
         this.corePersistenceProtoResolver = corePersistenceProtoResolver;
     }

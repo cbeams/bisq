@@ -30,6 +30,7 @@ import bisq.core.btc.TxFeeEstimationService;
 import bisq.core.btc.wallet.BsqWalletService;
 import bisq.core.btc.wallet.BtcWalletService;
 import bisq.core.filter.FilterManager;
+import bisq.core.offer.CreateOfferService;
 import bisq.core.offer.OpenOfferManager;
 import bisq.core.provider.fee.FeeService;
 import bisq.core.provider.price.PriceFeedService;
@@ -67,6 +68,7 @@ class CreateOfferDataModel extends MutableOfferDataModel {
                                 ReferralIdService referralIdService,
                                 BSFormatter btcFormatter,
                                 MakerFeeProvider makerFeeProvider,
+                                CreateOfferService createOfferService,
                                 Navigation navigation) {
         super(openOfferManager,
                 btcWalletService,
@@ -83,6 +85,7 @@ class CreateOfferDataModel extends MutableOfferDataModel {
                 referralIdService,
                 btcFormatter,
                 makerFeeProvider,
+                createOfferService,
                 navigation);
     }
 }
