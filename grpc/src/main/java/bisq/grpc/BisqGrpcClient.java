@@ -23,12 +23,16 @@ import bisq.core.proto.persistable.CorePersistenceProtoResolver;
 
 import org.bitcoinj.core.Coin;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 
 
@@ -42,6 +46,8 @@ import bisq.grpc.protobuf.GetTradeStatisticsGrpc;
 import bisq.grpc.protobuf.GetTradeStatisticsRequest;
 import bisq.grpc.protobuf.GetVersionGrpc;
 import bisq.grpc.protobuf.GetVersionRequest;
+import bisq.grpc.protobuf.PlaceOfferGrpc;
+import bisq.grpc.protobuf.PlaceOfferRequest;
 import bisq.grpc.protobuf.StopServerGrpc;
 import bisq.grpc.protobuf.StopServerRequest;
 import io.grpc.ManagedChannel;
@@ -66,6 +72,7 @@ public class BisqGrpcClient {
     private final GetTradeStatisticsGrpc.GetTradeStatisticsBlockingStub getTradeStatisticsStub;
     private final GetOffersGrpc.GetOffersBlockingStub getOffersStub;
     private final GetPaymentAccountsGrpc.GetPaymentAccountsBlockingStub getPaymentAccountsStub;
+    private final PlaceOfferGrpc.PlaceOfferBlockingStub placeOfferBlockingStub;
     private final CorePersistenceProtoResolver corePersistenceProtoResolver;
     private final CoreNetworkProtoResolver coreNetworkProtoResolver;
 
@@ -79,13 +86,25 @@ public class BisqGrpcClient {
                 // needing certificates.
                 .usePlaintext(true).build());
 
+        // Simple input scanner
+        // TODO use some more sophisticated input processing with validation....
         try (Scanner scanner = new Scanner(System.in);) {
             while (true) {
-                String input = scanner.nextLine();
-                String result = "";
                 long startTs = System.currentTimeMillis();
 
-                switch (input) {
+                String[] tokens = scanner.nextLine().split(" ");
+                if (tokens.length == 0) {
+                    return;
+                }
+                String command = tokens[0];
+                List<String> params = new ArrayList<>();
+                if (tokens.length > 1) {
+                    params.addAll(Arrays.asList(tokens));
+                    params.remove(0);
+                }
+                String result = "";
+
+                switch (command) {
                     case "getVersion":
                         result = getVersion();
                         break;
@@ -111,6 +130,38 @@ public class BisqGrpcClient {
                                 .collect(Collectors.toList());
                         result = paymentAccounts.toString();
                         break;
+                    case "placeOffer":
+                        // test input: placeOffer CNY BUY 750000000 true -0.2251 100000000 50000000 0.12 ea6b8f0d-217e-4190-8417-0f02cf90ab1e
+                        // payment accountId and currency need to be adopted
+
+                        // We expect 9 params
+                        // TODO add basic input validation
+                        try {
+                            checkArgument(params.size() == 9);
+                            String currencyCode = params.get(0);
+                            String directionAsString = params.get(1);
+                            long priceAsLong = Long.parseLong(params.get(2));
+                            boolean useMarketBasedPrice = Boolean.parseBoolean(params.get(3));
+                            double marketPriceMargin = Double.parseDouble(params.get(4));
+                            long amountAsLong = Long.parseLong(params.get(5));
+                            long minAmountAsLong = Long.parseLong(params.get(6));
+                            double buyerSecurityDeposit = Double.parseDouble(params.get(7));
+                            String paymentAccountId = params.get(8);
+                            boolean success = placeOffer(currencyCode,
+                                    directionAsString,
+                                    priceAsLong,
+                                    useMarketBasedPrice,
+                                    marketPriceMargin,
+                                    amountAsLong,
+                                    minAmountAsLong,
+                                    buyerSecurityDeposit,
+                                    paymentAccountId);
+                            result = String.valueOf(success);
+                            break;
+                        } catch (Throwable t) {
+                            log.error(t.toString(), t);
+                            break;
+                        }
                     case "stop":
                         result = "Shut down client";
                         try {
@@ -143,6 +194,7 @@ public class BisqGrpcClient {
         getTradeStatisticsStub = GetTradeStatisticsGrpc.newBlockingStub(channel);
         getOffersStub = GetOffersGrpc.newBlockingStub(channel);
         getPaymentAccountsStub = GetPaymentAccountsGrpc.newBlockingStub(channel);
+        placeOfferBlockingStub = PlaceOfferGrpc.newBlockingStub(channel);
         stopServerStub = StopServerGrpc.newBlockingStub(channel);
 
         coreNetworkProtoResolver = new CoreNetworkProtoResolver();
@@ -196,6 +248,34 @@ public class BisqGrpcClient {
         } catch (StatusRuntimeException e) {
             log.warn("RPC failed: {}", e.getStatus());
             return null;
+        }
+    }
+
+    private boolean placeOffer(String currencyCode,
+                               String directionAsString,
+                               long priceAsLong,
+                               boolean useMarketBasedPrice,
+                               double marketPriceMargin,
+                               long amountAsLong,
+                               long minAmountAsLong,
+                               double buyerSecurityDeposit,
+                               String paymentAccountId) {
+        PlaceOfferRequest request = PlaceOfferRequest.newBuilder()
+                .setCurrencyCode(currencyCode)
+                .setDirection(directionAsString)
+                .setPrice(priceAsLong)
+                .setUseMarketBasedPrice(useMarketBasedPrice)
+                .setMarketPriceMargin(marketPriceMargin)
+                .setAmount(amountAsLong)
+                .setMinAmount(minAmountAsLong)
+                .setBuyerSecurityDeposit(buyerSecurityDeposit)
+                .setPaymentAccountId(paymentAccountId)
+                .build();
+        try {
+            return placeOfferBlockingStub.placeOffer(request).getResult();
+        } catch (StatusRuntimeException e) {
+            log.warn("RPC failed: {}", e.getStatus());
+            return false;
         }
     }
 

@@ -2,13 +2,13 @@ package bisq.desktop.main.offer.createoffer;
 
 import bisq.desktop.main.offer.MakerFeeProvider;
 
-import bisq.core.btc.TxFeeEstimationService;
 import bisq.core.btc.model.AddressEntry;
 import bisq.core.btc.wallet.BtcWalletService;
 import bisq.core.locale.CryptoCurrency;
 import bisq.core.locale.FiatCurrency;
 import bisq.core.locale.GlobalSettings;
 import bisq.core.locale.Res;
+import bisq.core.offer.CreateOfferService;
 import bisq.core.offer.OfferPayload;
 import bisq.core.payment.ClearXchangeAccount;
 import bisq.core.payment.PaymentAccount;
@@ -48,7 +48,7 @@ public class CreateOfferDataModelTest {
         BtcWalletService btcWalletService = mock(BtcWalletService.class);
         PriceFeedService priceFeedService = mock(PriceFeedService.class);
         FeeService feeService = mock(FeeService.class);
-        TxFeeEstimationService feeEstimationService = mock(TxFeeEstimationService.class);
+        CreateOfferService createOfferService = mock(CreateOfferService.class);
         preferences = mock(Preferences.class);
         user = mock(User.class);
 
@@ -59,9 +59,8 @@ public class CreateOfferDataModelTest {
         makerFeeProvider = mock(MakerFeeProvider.class);
         model = new CreateOfferDataModel(null, btcWalletService,
                 null, preferences, user, null,
-                null, priceFeedService, null,
-                null, feeService, feeEstimationService,
-                null, null, makerFeeProvider, null, null);
+                priceFeedService, null,
+                feeService, null, makerFeeProvider, createOfferService, null);
     }
 
     @Test

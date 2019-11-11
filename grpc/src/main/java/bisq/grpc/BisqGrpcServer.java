@@ -20,6 +20,7 @@ package bisq.grpc;
 import bisq.core.CoreApi;
 import bisq.core.offer.Offer;
 import bisq.core.payment.PaymentAccount;
+import bisq.core.trade.handlers.TransactionResultHandler;
 import bisq.core.trade.statistics.TradeStatistics2;
 
 import java.io.IOException;
@@ -46,6 +47,9 @@ import bisq.grpc.protobuf.GetTradeStatisticsRequest;
 import bisq.grpc.protobuf.GetVersionGrpc;
 import bisq.grpc.protobuf.GetVersionReply;
 import bisq.grpc.protobuf.GetVersionRequest;
+import bisq.grpc.protobuf.PlaceOfferGrpc;
+import bisq.grpc.protobuf.PlaceOfferReply;
+import bisq.grpc.protobuf.PlaceOfferRequest;
 import bisq.grpc.protobuf.StopServerGrpc;
 import bisq.grpc.protobuf.StopServerReply;
 import bisq.grpc.protobuf.StopServerRequest;
@@ -129,6 +133,28 @@ public class BisqGrpcServer {
         }
     }
 
+    static class PlaceOfferImpl extends PlaceOfferGrpc.PlaceOfferImplBase {
+        @Override
+        public void placeOffer(PlaceOfferRequest req, StreamObserver<PlaceOfferReply> responseObserver) {
+            TransactionResultHandler resultHandler = transaction -> {
+                PlaceOfferReply reply = PlaceOfferReply.newBuilder().setResult(true).build();
+                responseObserver.onNext(reply);
+                responseObserver.onCompleted();
+            };
+            coreApi.placeOffer(
+                    req.getCurrencyCode(),
+                    req.getDirection(),
+                    req.getPrice(),
+                    req.getUseMarketBasedPrice(),
+                    req.getMarketPriceMargin(),
+                    req.getAmount(),
+                    req.getMinAmount(),
+                    req.getBuyerSecurityDeposit(),
+                    req.getPaymentAccountId(),
+                    resultHandler);
+        }
+    }
+
     static class StopServerImpl extends StopServerGrpc.StopServerImplBase {
         @Override
         public void stopServer(StopServerRequest req, StreamObserver<StopServerReply> responseObserver) {
@@ -194,6 +220,7 @@ public class BisqGrpcServer {
                 .addService(new GetTradeStatisticsImpl())
                 .addService(new GetOffersImpl())
                 .addService(new GetPaymentAccountsImpl())
+                .addService(new PlaceOfferImpl())
                 .addService(new StopServerImpl())
                 .build()
                 .start();

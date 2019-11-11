@@ -91,9 +91,9 @@ public class EditOfferDataModelTest {
 
         model = new EditOfferDataModel(null,
                 btcWalletService, bsqWalletService, empty, user,
-                null, null, priceFeedService, null,
+                null, priceFeedService,
                 accountAgeWitnessService, feeService, null, null,
-                null, null, mock(MakerFeeProvider.class), null, null);
+                mock(MakerFeeProvider.class), null, null);
     }
 
     @Test

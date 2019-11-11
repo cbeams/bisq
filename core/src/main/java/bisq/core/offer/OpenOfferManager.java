@@ -94,6 +94,7 @@ public class OpenOfferManager implements PeerManager.Listener, DecryptedDirectMe
     private static final long REPUBLISH_INTERVAL_MS = TimeUnit.MINUTES.toMillis(40);
     private static final long REFRESH_INTERVAL_MS = TimeUnit.MINUTES.toMillis(6);
 
+    private final CreateOfferService createOfferService;
     private final KeyRing keyRing;
     private final User user;
     private final P2PService p2PService;
@@ -121,7 +122,8 @@ public class OpenOfferManager implements PeerManager.Listener, DecryptedDirectMe
     ///////////////////////////////////////////////////////////////////////////////////////////
 
     @Inject
-    public OpenOfferManager(KeyRing keyRing,
+    public OpenOfferManager(CreateOfferService createOfferService,
+                            KeyRing keyRing,
                             User user,
                             P2PService p2PService,
                             BtcWalletService btcWalletService,
@@ -137,6 +139,7 @@ public class OpenOfferManager implements PeerManager.Listener, DecryptedDirectMe
                             RefundAgentManager refundAgentManager,
                             DaoFacade daoFacade,
                             Storage<TradableList<OpenOffer>> storage) {
+        this.createOfferService = createOfferService;
         this.keyRing = keyRing;
         this.user = user;
         this.p2PService = p2PService;
@@ -335,10 +338,19 @@ public class OpenOfferManager implements PeerManager.Listener, DecryptedDirectMe
     ///////////////////////////////////////////////////////////////////////////////////////////
 
     public void placeOffer(Offer offer,
-                           Coin reservedFundsForOffer,
+                           Coin amount,
+                           double buyerSecurityDeposit,
+                           OfferPayload.Direction direction,
                            boolean useSavingsWallet,
                            TransactionResultHandler resultHandler,
                            ErrorMessageHandler errorMessageHandler) {
+        checkNotNull(createOfferService.getMakerFee(amount), "makerFee must not be null");
+        double sellerSecurityDeposit = createOfferService.getSellerSecurityDeposit();
+        Coin reservedFundsForOffer = createOfferService.getReservedFundsForOffer(direction,
+                amount,
+                buyerSecurityDeposit,
+                sellerSecurityDeposit);
+
         PlaceOfferModel model = new PlaceOfferModel(offer,
                 reservedFundsForOffer,
                 useSavingsWallet,

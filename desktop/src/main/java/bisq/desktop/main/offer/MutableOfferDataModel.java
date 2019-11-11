@@ -29,7 +29,6 @@ import bisq.core.btc.model.AddressEntry;
 import bisq.core.btc.wallet.BsqWalletService;
 import bisq.core.btc.wallet.BtcWalletService;
 import bisq.core.btc.wallet.Restrictions;
-import bisq.core.filter.FilterManager;
 import bisq.core.locale.CurrencyUtil;
 import bisq.core.locale.TradeCurrency;
 import bisq.core.monetary.Price;
@@ -44,7 +43,6 @@ import bisq.core.payment.PaymentAccount;
 import bisq.core.provider.fee.FeeService;
 import bisq.core.provider.price.PriceFeedService;
 import bisq.core.trade.handlers.TransactionResultHandler;
-import bisq.core.trade.statistics.ReferralIdService;
 import bisq.core.user.Preferences;
 import bisq.core.user.User;
 import bisq.core.util.BSFormatter;
@@ -52,8 +50,6 @@ import bisq.core.util.CoinUtil;
 
 import bisq.network.p2p.P2PService;
 
-import bisq.common.app.Version;
-import bisq.common.crypto.KeyRing;
 import bisq.common.util.MathUtils;
 import bisq.common.util.Tuple2;
 import bisq.common.util.Utilities;
@@ -82,7 +78,6 @@ import javafx.collections.SetChangeListener;
 
 import java.util.HashSet;
 import java.util.Optional;
-import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -93,15 +88,11 @@ public abstract class MutableOfferDataModel extends OfferDataModel implements Bs
     private final BsqWalletService bsqWalletService;
     private final Preferences preferences;
     protected final User user;
-    private final KeyRing keyRing;
     private final P2PService p2PService;
     protected final PriceFeedService priceFeedService;
     final String shortOfferId;
-    private final FilterManager filterManager;
     private final AccountAgeWitnessService accountAgeWitnessService;
     private final FeeService feeService;
-    private final TxFeeEstimationService txFeeEstimationService;
-    private final ReferralIdService referralIdService;
     private final BSFormatter btcFormatter;
     private MakerFeeProvider makerFeeProvider;
     private final CreateOfferService createOfferService;
@@ -114,10 +105,6 @@ public abstract class MutableOfferDataModel extends OfferDataModel implements Bs
     protected TradeCurrency tradeCurrency;
     protected final StringProperty tradeCurrencyCode = new SimpleStringProperty();
     protected final BooleanProperty useMarketBasedPrice = new SimpleBooleanProperty();
-    //final BooleanProperty isMainNet = new SimpleBooleanProperty();
-    //final BooleanProperty isFeeFromFundingTxSufficient = new SimpleBooleanProperty();
-
-    // final ObjectProperty<Coin> feeFromFundingTxProperty = new SimpleObjectProperty(Coin.NEGATIVE_SATOSHI);
     protected final ObjectProperty<Coin> amount = new SimpleObjectProperty<>();
     protected final ObjectProperty<Coin> minAmount = new SimpleObjectProperty<>();
     protected final ObjectProperty<Price> price = new SimpleObjectProperty<>();
@@ -149,14 +136,10 @@ public abstract class MutableOfferDataModel extends OfferDataModel implements Bs
                                  BsqWalletService bsqWalletService,
                                  Preferences preferences,
                                  User user,
-                                 KeyRing keyRing,
                                  P2PService p2PService,
                                  PriceFeedService priceFeedService,
-                                 FilterManager filterManager,
                                  AccountAgeWitnessService accountAgeWitnessService,
                                  FeeService feeService,
-                                 TxFeeEstimationService txFeeEstimationService,
-                                 ReferralIdService referralIdService,
                                  BSFormatter btcFormatter,
                                  MakerFeeProvider makerFeeProvider,
                                  CreateOfferService createOfferService,
@@ -167,55 +150,27 @@ public abstract class MutableOfferDataModel extends OfferDataModel implements Bs
         this.bsqWalletService = bsqWalletService;
         this.preferences = preferences;
         this.user = user;
-        this.keyRing = keyRing;
         this.p2PService = p2PService;
         this.priceFeedService = priceFeedService;
-        this.filterManager = filterManager;
         this.accountAgeWitnessService = accountAgeWitnessService;
         this.feeService = feeService;
-        this.txFeeEstimationService = txFeeEstimationService;
-        this.referralIdService = referralIdService;
         this.btcFormatter = btcFormatter;
         this.makerFeeProvider = makerFeeProvider;
         this.createOfferService = createOfferService;
         this.navigation = navigation;
 
-        offerId = Utilities.getRandomPrefix(5, 8) + "-" +
-                UUID.randomUUID().toString() + "-" +
-                Version.VERSION.replace(".", "");
+        offerId = createOfferService.getRandomOfferId();
         shortOfferId = Utilities.getShortId(offerId);
         addressEntry = btcWalletService.getOrCreateAddressEntry(offerId, AddressEntry.Context.OFFER_FUNDING);
 
         useMarketBasedPrice.set(preferences.isUsePercentageBasedPrice());
         buyerSecurityDeposit.set(preferences.getBuyerSecurityDepositAsPercent(null));
-        sellerSecurityDeposit.set(Restrictions.getSellerSecurityDepositAsPercent());
+        sellerSecurityDeposit.set(createOfferService.getSellerSecurityDeposit());
 
         btcBalanceListener = new BalanceListener(getAddressEntry().getAddress()) {
             @Override
             public void onBalanceChanged(Coin balance, Transaction tx) {
                 updateBalance();
-
-               /* if (isMainNet.get()) {
-                    SettableFuture<Coin> future = blockchainService.requestFee(tx.getHashAsString());
-                    Futures.addCallback(future, new FutureCallback<Coin>() {
-                        public void onSuccess(Coin fee) {
-                            UserThread.execute(() -> feeFromFundingTxProperty.set(fee));
-                        }
-
-                        public void onFailure(@NotNull Throwable throwable) {
-                            UserThread.execute(() -> new Popup<>()
-                                    .warning("We did not get a response for the request of the mining fee used " +
-                                            "in the funding transaction.\n\n" +
-                                            "Are you sure you used a sufficiently high fee of at least " +
-                                            formatter.formatCoinWithCode(FeePolicy.getMinRequiredFeeForFundingTx()) + "?")
-                                    .actionButtonText("Yes, I used a sufficiently high fee.")
-                                    .onAction(() -> feeFromFundingTxProperty.set(FeePolicy.getMinRequiredFeeForFundingTx()))
-                                    .closeButtonText("No. Let's cancel that payment.")
-                                    .onClose(() -> feeFromFundingTxProperty.set(Coin.ZERO))
-                                    .show());
-                        }
-                    });
-                }*/
             }
         };
 
@@ -329,32 +284,24 @@ public abstract class MutableOfferDataModel extends OfferDataModel implements Bs
                 amount.get(),
                 minAmount.get(),
                 buyerSecurityDeposit.get(),
-                sellerSecurityDeposit.get(),
-                txFeeFromFeeService,
                 paymentAccount);
     }
 
     // This works only if we have already funds in the wallet
-    public void estimateTxSize() {
-        Coin reservedFundsForOffer = getSecurityDeposit();
-        if (!isBuyOffer())
-            reservedFundsForOffer = reservedFundsForOffer.add(amount.get());
-
-        Tuple2<Coin, Integer> estimatedFeeAndTxSize = txFeeEstimationService.getEstimatedFeeAndTxSizeForMaker(reservedFundsForOffer,
-                getMakerFee());
+    public void updateEstimatedFeeAndTxSize() {
+        Tuple2<Coin, Integer> estimatedFeeAndTxSize = createOfferService.getEstimatedFeeAndTxSize(amount.get(),
+                direction,
+                buyerSecurityDeposit.get(),
+                sellerSecurityDeposit.get());
         txFeeFromFeeService = estimatedFeeAndTxSize.first;
         feeTxSize = estimatedFeeAndTxSize.second;
     }
 
     void onPlaceOffer(Offer offer, TransactionResultHandler resultHandler) {
-        checkNotNull(getMakerFee(), "makerFee must not be null");
-
-        Coin reservedFundsForOffer = getSecurityDeposit();
-        if (!isBuyOffer())
-            reservedFundsForOffer = reservedFundsForOffer.add(amount.get());
-
         openOfferManager.placeOffer(offer,
-                reservedFundsForOffer,
+                amount.get(),
+                buyerSecurityDeposit.get(),
+                direction,
                 useSavingsWallet,
                 resultHandler,
                 log::error);
@@ -463,7 +410,6 @@ public abstract class MutableOfferDataModel extends OfferDataModel implements Bs
     // Getters
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean isMinAmountLessOrEqualAmount() {
         //noinspection SimplifiableIfStatement
         if (minAmount.get() != null && amount.get() != null)
@@ -624,7 +570,7 @@ public abstract class MutableOfferDataModel extends OfferDataModel implements Bs
             return txFeeFromFeeService.subtract(getMakerFee());
     }
 
-    public void swapTradeToSavings() {
+    void swapTradeToSavings() {
         btcWalletService.resetAddressEntriesForOpenOffer(offerId);
     }
 
@@ -724,7 +670,7 @@ public abstract class MutableOfferDataModel extends OfferDataModel implements Bs
         return totalToPayAsCoin;
     }
 
-    public Coin getBsqBalance() {
+    Coin getBsqBalance() {
         return bsqWalletService.getAvailableConfirmedBalance();
     }
 
