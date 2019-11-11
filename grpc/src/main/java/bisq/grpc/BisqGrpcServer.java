@@ -19,6 +19,7 @@ package bisq.grpc;
 
 import bisq.core.CoreApi;
 import bisq.core.offer.Offer;
+import bisq.core.payment.PaymentAccount;
 import bisq.core.trade.statistics.TradeStatistics2;
 
 import java.io.IOException;
@@ -36,6 +37,9 @@ import bisq.grpc.protobuf.GetBalanceRequest;
 import bisq.grpc.protobuf.GetOffersGrpc;
 import bisq.grpc.protobuf.GetOffersReply;
 import bisq.grpc.protobuf.GetOffersRequest;
+import bisq.grpc.protobuf.GetPaymentAccountsGrpc;
+import bisq.grpc.protobuf.GetPaymentAccountsReply;
+import bisq.grpc.protobuf.GetPaymentAccountsRequest;
 import bisq.grpc.protobuf.GetTradeStatisticsGrpc;
 import bisq.grpc.protobuf.GetTradeStatisticsReply;
 import bisq.grpc.protobuf.GetTradeStatisticsRequest;
@@ -110,6 +114,21 @@ public class BisqGrpcServer {
         }
     }
 
+    static class GetPaymentAccountsImpl extends GetPaymentAccountsGrpc.GetPaymentAccountsImplBase {
+        @Override
+        public void getPaymentAccounts(GetPaymentAccountsRequest req,
+                                       StreamObserver<GetPaymentAccountsReply> responseObserver) {
+
+            List<protobuf.PaymentAccount> tradeStatistics = coreApi.getPaymentAccounts().stream()
+                    .map(PaymentAccount::toProtoMessage)
+                    .collect(Collectors.toList());
+
+            GetPaymentAccountsReply reply = GetPaymentAccountsReply.newBuilder().addAllPaymentAccounts(tradeStatistics).build();
+            responseObserver.onNext(reply);
+            responseObserver.onCompleted();
+        }
+    }
+
     static class StopServerImpl extends StopServerGrpc.StopServerImplBase {
         @Override
         public void stopServer(StopServerRequest req, StreamObserver<StopServerReply> responseObserver) {
@@ -174,6 +193,7 @@ public class BisqGrpcServer {
                 .addService(new GetBalanceImpl())
                 .addService(new GetTradeStatisticsImpl())
                 .addService(new GetOffersImpl())
+                .addService(new GetPaymentAccountsImpl())
                 .addService(new StopServerImpl())
                 .build()
                 .start();

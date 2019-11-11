@@ -17,6 +17,10 @@
 
 package bisq.grpc;
 
+import bisq.core.payment.PaymentAccount;
+import bisq.core.proto.network.CoreNetworkProtoResolver;
+import bisq.core.proto.persistable.CorePersistenceProtoResolver;
+
 import org.bitcoinj.core.Coin;
 
 import java.util.List;
@@ -32,6 +36,8 @@ import bisq.grpc.protobuf.GetBalanceGrpc;
 import bisq.grpc.protobuf.GetBalanceRequest;
 import bisq.grpc.protobuf.GetOffersGrpc;
 import bisq.grpc.protobuf.GetOffersRequest;
+import bisq.grpc.protobuf.GetPaymentAccountsGrpc;
+import bisq.grpc.protobuf.GetPaymentAccountsRequest;
 import bisq.grpc.protobuf.GetTradeStatisticsGrpc;
 import bisq.grpc.protobuf.GetTradeStatisticsRequest;
 import bisq.grpc.protobuf.GetVersionGrpc;
@@ -59,6 +65,9 @@ public class BisqGrpcClient {
     private final StopServerGrpc.StopServerBlockingStub stopServerStub;
     private final GetTradeStatisticsGrpc.GetTradeStatisticsBlockingStub getTradeStatisticsStub;
     private final GetOffersGrpc.GetOffersBlockingStub getOffersStub;
+    private final GetPaymentAccountsGrpc.GetPaymentAccountsBlockingStub getPaymentAccountsStub;
+    private final CorePersistenceProtoResolver corePersistenceProtoResolver;
+    private final CoreNetworkProtoResolver coreNetworkProtoResolver;
 
     public static void main(String[] args) throws Exception {
         instance = new BisqGrpcClient("localhost", 8888);
@@ -94,8 +103,13 @@ public class BisqGrpcClient {
                         List<bisq.core.offer.Offer> offers = getOffers().stream()
                                 .map(bisq.core.offer.Offer::fromProto)
                                 .collect(Collectors.toList());
-
                         result = offers.toString();
+                        break;
+                    case "getPaymentAccounts":
+                        List<PaymentAccount> paymentAccounts = getPaymentAccounts().stream()
+                                .map(proto -> PaymentAccount.fromProto(proto, corePersistenceProtoResolver))
+                                .collect(Collectors.toList());
+                        result = paymentAccounts.toString();
                         break;
                     case "stop":
                         result = "Shut down client";
@@ -128,7 +142,12 @@ public class BisqGrpcClient {
         getBalanceStub = GetBalanceGrpc.newBlockingStub(channel);
         getTradeStatisticsStub = GetTradeStatisticsGrpc.newBlockingStub(channel);
         getOffersStub = GetOffersGrpc.newBlockingStub(channel);
+        getPaymentAccountsStub = GetPaymentAccountsGrpc.newBlockingStub(channel);
         stopServerStub = StopServerGrpc.newBlockingStub(channel);
+
+        coreNetworkProtoResolver = new CoreNetworkProtoResolver();
+        //TODO
+        corePersistenceProtoResolver = new CorePersistenceProtoResolver(null, coreNetworkProtoResolver, null, null);
     }
 
     private String getVersion() {
@@ -164,6 +183,16 @@ public class BisqGrpcClient {
         GetOffersRequest request = GetOffersRequest.newBuilder().build();
         try {
             return getOffersStub.getOffers(request).getOffersList();
+        } catch (StatusRuntimeException e) {
+            log.warn("RPC failed: {}", e.getStatus());
+            return null;
+        }
+    }
+
+    private List<protobuf.PaymentAccount> getPaymentAccounts() {
+        GetPaymentAccountsRequest request = GetPaymentAccountsRequest.newBuilder().build();
+        try {
+            return getPaymentAccountsStub.getPaymentAccounts(request).getPaymentAccountsList();
         } catch (StatusRuntimeException e) {
             log.warn("RPC failed: {}", e.getStatus());
             return null;

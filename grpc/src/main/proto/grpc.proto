@@ -85,9 +85,26 @@ service GetOffers {
 message GetOffersRequest {
 }
 
-// FIXME: IntelliJ does not recognize the imported Offer2 but the compiler does
+// FIXME: IntelliJ does not recognize the imported Offer but the compiler does
 message GetOffersReply {
     repeated Offer offers = 1;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+// PaymentAccount
+///////////////////////////////////////////////////////////////////////////////////////////
+
+service GetPaymentAccounts {
+    rpc GetPaymentAccounts (GetPaymentAccountsRequest) returns (GetPaymentAccountsReply) {
+    }
+}
+
+message GetPaymentAccountsRequest {
+}
+
+// FIXME: IntelliJ does not recognize the imported PaymentAccount but the compiler does
+message GetPaymentAccountsReply {
+    repeated PaymentAccount paymentAccounts = 1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
