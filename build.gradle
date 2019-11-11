@@ -413,7 +413,7 @@ configure(project(':grpc')) {
 
     mainClassName = 'bisq.grpc.BisqGrpcServerMain'
 
-    // FIXME we dont want to have one src din inside the other....
+    // FIXME we dont want to have one src dir inside the other....
     sourceSets.main.java.srcDir "$buildDir/generated/source/proto/main"
     sourceSets.main.java.srcDir "$buildDir/generated/source/proto/main/java"
 

@@ -87,11 +87,9 @@ public class BisqGrpcServer {
         @Override
         public void getTradeStatistics(GetTradeStatisticsRequest req,
                                        StreamObserver<GetTradeStatisticsReply> responseObserver) {
-
             List<protobuf.TradeStatistics2> tradeStatistics = coreApi.getTradeStatistics().stream()
-                    .map(TradeStatistics2::toTradeStatistics2)
+                    .map(TradeStatistics2::toProtoTradeStatistics2)
                     .collect(Collectors.toList());
-
             GetTradeStatisticsReply reply = GetTradeStatisticsReply.newBuilder().addAllTradeStatistics(tradeStatistics).build();
             responseObserver.onNext(reply);
             responseObserver.onCompleted();

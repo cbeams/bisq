@@ -192,18 +192,13 @@ public final class TradeStatistics2 implements LazyProcessedPayload, Persistable
         return builder;
     }
 
-    public protobuf.TradeStatistics2 toTradeStatistics2() {
+    public protobuf.TradeStatistics2 toProtoTradeStatistics2() {
         return getBuilder().build();
     }
 
     @Override
     public protobuf.PersistableNetworkPayload toProtoMessage() {
         return protobuf.PersistableNetworkPayload.newBuilder().setTradeStatistics2(getBuilder()).build();
-    }
-
-
-    public protobuf.TradeStatistics2 toProtoTradeStatistics2() {
-        return toProtoMessage().getTradeStatistics2();
     }
 
     public static TradeStatistics2 fromProto(protobuf.TradeStatistics2 proto) {
