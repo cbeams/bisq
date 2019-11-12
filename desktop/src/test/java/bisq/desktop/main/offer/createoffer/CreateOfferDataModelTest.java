@@ -21,6 +21,7 @@ import bisq.core.user.User;
 import org.bitcoinj.core.Coin;
 
 import java.util.HashSet;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -55,6 +56,7 @@ public class CreateOfferDataModelTest {
         when(btcWalletService.getOrCreateAddressEntry(anyString(), any())).thenReturn(addressEntry);
         when(preferences.isUsePercentageBasedPrice()).thenReturn(true);
         when(preferences.getBuyerSecurityDepositAsPercent(null)).thenReturn(0.01);
+        when(createOfferService.getRandomOfferId()).thenReturn(UUID.randomUUID().toString());
 
         makerFeeProvider = mock(MakerFeeProvider.class);
         model = new CreateOfferDataModel(null, btcWalletService,
