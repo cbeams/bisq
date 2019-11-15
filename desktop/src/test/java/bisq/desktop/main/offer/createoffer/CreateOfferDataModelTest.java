@@ -59,10 +59,10 @@ public class CreateOfferDataModelTest {
         when(createOfferService.getRandomOfferId()).thenReturn(UUID.randomUUID().toString());
 
         makerFeeProvider = mock(MakerFeeProvider.class);
-        model = new CreateOfferDataModel(null, btcWalletService,
+        model = new CreateOfferDataModel(createOfferService, null, btcWalletService,
                 null, preferences, user, null,
                 priceFeedService, null,
-                feeService, null, makerFeeProvider, createOfferService, null);
+                feeService, null, makerFeeProvider, null);
     }
 
     @Test

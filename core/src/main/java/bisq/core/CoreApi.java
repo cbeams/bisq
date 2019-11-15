@@ -144,20 +144,18 @@ public class CoreApi {
                            boolean useSavingsWallet,
                            TransactionResultHandler resultHandler) {
         Offer offer = createOfferService.createAndGetOffer(offerId,
-                currencyCode,
                 direction,
+                currencyCode,
+                amount,
+                minAmount,
                 price,
                 useMarketBasedPrice,
                 marketPriceMargin,
-                amount,
-                minAmount,
                 buyerSecurityDeposit,
                 paymentAccount);
 
         openOfferManager.placeOffer(offer,
-                amount,
                 buyerSecurityDeposit,
-                direction,
                 useSavingsWallet,
                 resultHandler,
                 log::error);

@@ -84,6 +84,7 @@ import javax.annotation.Nullable;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class MutableOfferDataModel extends OfferDataModel implements BsqBalanceListener {
+    private final CreateOfferService createOfferService;
     protected final OpenOfferManager openOfferManager;
     private final BsqWalletService bsqWalletService;
     private final Preferences preferences;
@@ -94,8 +95,7 @@ public abstract class MutableOfferDataModel extends OfferDataModel implements Bs
     private final AccountAgeWitnessService accountAgeWitnessService;
     private final FeeService feeService;
     private final BSFormatter btcFormatter;
-    private MakerFeeProvider makerFeeProvider;
-    private final CreateOfferService createOfferService;
+    private final MakerFeeProvider makerFeeProvider;
     private final Navigation navigation;
     private final String offerId;
     private final BalanceListener btcBalanceListener;
@@ -113,12 +113,11 @@ public abstract class MutableOfferDataModel extends OfferDataModel implements Bs
 
     // Percentage value of buyer security deposit. E.g. 0.01 means 1% of trade amount
     protected final DoubleProperty buyerSecurityDeposit = new SimpleDoubleProperty();
-    protected final DoubleProperty sellerSecurityDeposit = new SimpleDoubleProperty();
 
     protected final ObservableList<PaymentAccount> paymentAccounts = FXCollections.observableArrayList();
 
     protected PaymentAccount paymentAccount;
-    protected boolean isTabSelected;
+    boolean isTabSelected;
     protected double marketPriceMargin = 0;
     private Coin txFeeFromFeeService = Coin.ZERO;
     private boolean marketPriceAvailable;
@@ -131,7 +130,8 @@ public abstract class MutableOfferDataModel extends OfferDataModel implements Bs
     ///////////////////////////////////////////////////////////////////////////////////////////
 
     @Inject
-    public MutableOfferDataModel(OpenOfferManager openOfferManager,
+    public MutableOfferDataModel(CreateOfferService createOfferService,
+                                 OpenOfferManager openOfferManager,
                                  BtcWalletService btcWalletService,
                                  BsqWalletService bsqWalletService,
                                  Preferences preferences,
@@ -142,10 +142,10 @@ public abstract class MutableOfferDataModel extends OfferDataModel implements Bs
                                  FeeService feeService,
                                  BSFormatter btcFormatter,
                                  MakerFeeProvider makerFeeProvider,
-                                 CreateOfferService createOfferService,
                                  Navigation navigation) {
         super(btcWalletService);
 
+        this.createOfferService = createOfferService;
         this.openOfferManager = openOfferManager;
         this.bsqWalletService = bsqWalletService;
         this.preferences = preferences;
@@ -156,7 +156,6 @@ public abstract class MutableOfferDataModel extends OfferDataModel implements Bs
         this.feeService = feeService;
         this.btcFormatter = btcFormatter;
         this.makerFeeProvider = makerFeeProvider;
-        this.createOfferService = createOfferService;
         this.navigation = navigation;
 
         offerId = createOfferService.getRandomOfferId();
@@ -165,7 +164,6 @@ public abstract class MutableOfferDataModel extends OfferDataModel implements Bs
 
         useMarketBasedPrice.set(preferences.isUsePercentageBasedPrice());
         buyerSecurityDeposit.set(preferences.getBuyerSecurityDepositAsPercent(null));
-        sellerSecurityDeposit.set(createOfferService.getSellerSecurityDeposit());
 
         btcBalanceListener = new BalanceListener(getAddressEntry().getAddress()) {
             @Override
@@ -276,13 +274,13 @@ public abstract class MutableOfferDataModel extends OfferDataModel implements Bs
 
     Offer createAndGetOffer() {
         return createOfferService.createAndGetOffer(offerId,
-                tradeCurrencyCode.get(),
                 direction,
+                tradeCurrencyCode.get(),
+                amount.get(),
+                minAmount.get(),
                 price.get(),
                 useMarketBasedPrice.get(),
                 marketPriceMargin,
-                amount.get(),
-                minAmount.get(),
                 buyerSecurityDeposit.get(),
                 paymentAccount);
     }
@@ -292,16 +290,14 @@ public abstract class MutableOfferDataModel extends OfferDataModel implements Bs
         Tuple2<Coin, Integer> estimatedFeeAndTxSize = createOfferService.getEstimatedFeeAndTxSize(amount.get(),
                 direction,
                 buyerSecurityDeposit.get(),
-                sellerSecurityDeposit.get());
+                createOfferService.getSellerSecurityDepositAsDouble());
         txFeeFromFeeService = estimatedFeeAndTxSize.first;
         feeTxSize = estimatedFeeAndTxSize.second;
     }
 
     void onPlaceOffer(Offer offer, TransactionResultHandler resultHandler) {
         openOfferManager.placeOffer(offer,
-                amount.get(),
                 buyerSecurityDeposit.get(),
-                direction,
                 useSavingsWallet,
                 resultHandler,
                 log::error);
@@ -645,12 +641,12 @@ public abstract class MutableOfferDataModel extends OfferDataModel implements Bs
         return getBoundedBuyerSecurityDepositAsCoin(percentOfAmountAsCoin);
     }
 
-    Coin getSellerSecurityDepositAsCoin() {
+    private Coin getSellerSecurityDepositAsCoin() {
         Coin amountAsCoin = this.amount.get();
         if (amountAsCoin == null)
             amountAsCoin = Coin.ZERO;
 
-        Coin percentOfAmountAsCoin = CoinUtil.getPercentOfAmountAsCoin(sellerSecurityDeposit.get(), amountAsCoin);
+        Coin percentOfAmountAsCoin = CoinUtil.getPercentOfAmountAsCoin(createOfferService.getSellerSecurityDepositAsDouble(), amountAsCoin);
         return getBoundedSellerSecurityDepositAsCoin(percentOfAmountAsCoin);
     }
 
@@ -698,11 +694,11 @@ public abstract class MutableOfferDataModel extends OfferDataModel implements Bs
         return OfferUtil.isCurrencyForMakerFeeBtc(preferences, bsqWalletService, amount.get());
     }
 
-    public boolean isPreferredFeeCurrencyBtc() {
+    boolean isPreferredFeeCurrencyBtc() {
         return preferences.isPayFeeInBtc();
     }
 
-    public boolean isBsqForFeeAvailable() {
+    boolean isBsqForFeeAvailable() {
         return OfferUtil.isBsqForMakerFeeAvailable(bsqWalletService, amount.get());
     }
 
@@ -710,7 +706,7 @@ public abstract class MutableOfferDataModel extends OfferDataModel implements Bs
         return paymentAccount instanceof HalCashAccount;
     }
 
-    public boolean canPlaceOffer() {
+    boolean canPlaceOffer() {
         return GUIUtil.isBootstrappedOrShowPopup(p2PService) &&
                 GUIUtil.canCreateOrTakeOfferOrShowPopup(user, navigation);
     }

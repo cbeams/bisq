@@ -338,18 +338,16 @@ public class OpenOfferManager implements PeerManager.Listener, DecryptedDirectMe
     ///////////////////////////////////////////////////////////////////////////////////////////
 
     public void placeOffer(Offer offer,
-                           Coin amount,
                            double buyerSecurityDeposit,
-                           OfferPayload.Direction direction,
                            boolean useSavingsWallet,
                            TransactionResultHandler resultHandler,
                            ErrorMessageHandler errorMessageHandler) {
-        checkNotNull(createOfferService.getMakerFee(amount), "makerFee must not be null");
-        double sellerSecurityDeposit = createOfferService.getSellerSecurityDeposit();
-        Coin reservedFundsForOffer = createOfferService.getReservedFundsForOffer(direction,
-                amount,
+        checkNotNull(offer.getMakerFee(), "makerFee must not be null");
+
+        Coin reservedFundsForOffer = createOfferService.getReservedFundsForOffer(offer.getDirection(),
+                offer.getAmount(),
                 buyerSecurityDeposit,
-                sellerSecurityDeposit);
+                createOfferService.getSellerSecurityDepositAsDouble());
 
         PlaceOfferModel model = new PlaceOfferModel(offer,
                 reservedFundsForOffer,

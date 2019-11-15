@@ -94,11 +94,11 @@ public class EditOfferDataModelTest {
         when(bsqWalletService.getAvailableConfirmedBalance()).thenReturn(Coin.ZERO);
         when(createOfferService.getRandomOfferId()).thenReturn(UUID.randomUUID().toString());
 
-        model = new EditOfferDataModel(null,
+        model = new EditOfferDataModel(createOfferService, null,
                 btcWalletService, bsqWalletService, empty, user,
                 null, priceFeedService,
                 accountAgeWitnessService, feeService, null, null,
-                mock(MakerFeeProvider.class), createOfferService, null);
+                mock(MakerFeeProvider.class), null);
     }
 
     @Test

@@ -131,7 +131,7 @@ public class BisqGrpcClient {
                         result = paymentAccounts.toString();
                         break;
                     case "placeOffer":
-                        // test input: placeOffer CNY BUY 750000000 true -0.2251 100000000 50000000 0.12 ea6b8f0d-217e-4190-8417-0f02cf90ab1e
+                        // test input: placeOffer CNY BUY 750000000 true -0.2251 1000000 500000 0.12 5a972121-c30a-4b0e-b519-b17b63795d16
                         // payment accountId and currency need to be adopted
 
                         // We expect 9 params
