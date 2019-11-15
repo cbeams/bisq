@@ -116,4 +116,12 @@ public class BisqGrpcServerMain extends BisqHeadlessAppMain implements BisqSetup
         // In headless mode we don't have an async behaviour so we trigger the setup by calling onApplicationStarted
         onApplicationStarted();
     }
+
+    @Override
+    protected void onApplicationStarted() {
+        super.onApplicationStarted();
+
+        CoreApi coreApi = injector.getInstance(CoreApi.class);
+        bisqGrpcServer = new BisqGrpcServer(coreApi);
+    }
 }
