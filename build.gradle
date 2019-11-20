@@ -92,12 +92,13 @@ configure(subprojects) {
 
 
 configure([project(':desktop'),
+           project(':grpc'),
            project(':monitor'),
+           project(':pricenode'),
            project(':relay'),
            project(':seednode'),
-           project(':statsnode'),
-           project(':pricenode'),
-           project(':grpc')]) {
+           project(':statsnode')]) {
+
 
     apply plugin: 'application'
 
