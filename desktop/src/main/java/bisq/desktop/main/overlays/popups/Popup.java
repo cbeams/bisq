@@ -22,7 +22,8 @@ import bisq.desktop.main.overlays.Overlay;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Popup<T extends Overlay> extends Overlay<Popup> {
+// TODO: Type parameter is unused - remove:
+public class Popup<T> extends Overlay<Popup<T>> {
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     public Popup() {
@@ -41,6 +42,4 @@ public class Popup<T extends Overlay> extends Overlay<Popup> {
     protected void onHidden() {
         PopupManager.onHidden(this);
     }
-
-
 }

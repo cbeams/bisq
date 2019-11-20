@@ -3,20 +3,16 @@
  *
  * Bisq is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation,
-either version 3 of the License,
-or (at
+ * the Free Software Foundation, either version 3 of the License, or (at
  * your option) any later version.
  *
- * Bisq is distributed in the hope that it will be useful,
-but WITHOUT
+ * Bisq is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public
  * License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with Bisq. If not,
-see <http://www.gnu.org/licenses/>.
+ * along with Bisq. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package bisq.desktop.main.offer.createoffer;
@@ -34,11 +30,14 @@ import bisq.core.provider.fee.FeeService;
 import bisq.core.provider.price.PriceFeedService;
 import bisq.core.user.Preferences;
 import bisq.core.user.User;
-import bisq.core.util.BSFormatter;
+import bisq.core.util.FormattingUtils;
+import bisq.core.util.coin.CoinFormatter;
 
 import bisq.network.p2p.P2PService;
 
 import com.google.inject.Inject;
+
+import javax.inject.Named;
 
 /**
  * Domain for that UI element.
@@ -58,7 +57,7 @@ class CreateOfferDataModel extends MutableOfferDataModel {
                                 PriceFeedService priceFeedService,
                                 AccountAgeWitnessService accountAgeWitnessService,
                                 FeeService feeService,
-                                BSFormatter btcFormatter,
+                                @Named(FormattingUtils.BTC_FORMATTER_KEY) CoinFormatter btcFormatter,
                                 MakerFeeProvider makerFeeProvider,
                                 Navigation navigation) {
         super(createOfferService,

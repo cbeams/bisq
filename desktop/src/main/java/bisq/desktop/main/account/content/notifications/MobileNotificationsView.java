@@ -47,8 +47,9 @@ import bisq.core.payment.PaymentAccount;
 import bisq.core.provider.price.PriceFeedService;
 import bisq.core.user.Preferences;
 import bisq.core.user.User;
-import bisq.core.util.BSFormatter;
+import bisq.core.util.FormattingUtils;
 import bisq.core.util.ParsingUtils;
+import bisq.core.util.coin.CoinFormatter;
 import bisq.core.util.validation.InputValidator;
 
 import bisq.common.UserThread;
@@ -56,6 +57,7 @@ import bisq.common.util.Tuple2;
 import bisq.common.util.Tuple3;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -89,7 +91,7 @@ public class MobileNotificationsView extends ActivatableView<GridPane, Void> {
     private final PriceFeedService priceFeedService;
     private final MarketAlerts marketAlerts;
     private final MobileNotificationService mobileNotificationService;
-    private final BSFormatter formatter;
+    private final CoinFormatter formatter;
 
     private WebCamWindow webCamWindow;
     private QrCodeReader qrCodeReader;
@@ -126,7 +128,7 @@ public class MobileNotificationsView extends ActivatableView<GridPane, Void> {
                                     PriceFeedService priceFeedService,
                                     MarketAlerts marketAlerts,
                                     MobileNotificationService mobileNotificationService,
-                                    BSFormatter formatter) {
+                                    @Named(FormattingUtils.BTC_FORMATTER_KEY) CoinFormatter formatter) {
         super();
         this.preferences = preferences;
         this.user = user;
@@ -512,7 +514,7 @@ public class MobileNotificationsView extends ActivatableView<GridPane, Void> {
             if (oldValue && !newValue) {
                 try {
                     double percentAsDouble = ParsingUtils.parsePercentStringToDouble(marketAlertTriggerInputTextField.getText()) * 100;
-                    marketAlertTriggerInputTextField.setText(BSFormatter.formatRoundedDoubleWithPrecision(percentAsDouble, 2) + "%");
+                    marketAlertTriggerInputTextField.setText(FormattingUtils.formatRoundedDoubleWithPrecision(percentAsDouble, 2) + "%");
                 } catch (Throwable ignore) {
                 }
 
@@ -696,8 +698,8 @@ public class MobileNotificationsView extends ActivatableView<GridPane, Void> {
                 currencyComboBox.getSelectionModel().select(optionalTradeCurrency.get());
                 onSelectedTradeCurrency();
 
-                priceAlertHighInputTextField.setText(BSFormatter.formatMarketPrice(priceAlertFilter.getHigh() / 10000d, currencyCode));
-                priceAlertLowInputTextField.setText(BSFormatter.formatMarketPrice(priceAlertFilter.getLow() / 10000d, currencyCode));
+                priceAlertHighInputTextField.setText(FormattingUtils.formatMarketPrice(priceAlertFilter.getHigh() / 10000d, currencyCode));
+                priceAlertLowInputTextField.setText(FormattingUtils.formatMarketPrice(priceAlertFilter.getLow() / 10000d, currencyCode));
             } else {
                 currencyComboBox.getSelectionModel().clearSelection();
             }
@@ -755,7 +757,7 @@ public class MobileNotificationsView extends ActivatableView<GridPane, Void> {
                 // We want to use the converted value not the inout value as we apply the converted value at focus out.
                 // E.g. if input is 5555.5555 it will be rounded to  5555.55 and we use that as the value for comparing
                 // low and high price...
-                String stringValue = BSFormatter.formatRoundedDoubleWithPrecision(priceAsDouble, precision);
+                String stringValue = FormattingUtils.formatRoundedDoubleWithPrecision(priceAsDouble, precision);
                 return ParsingUtils.parsePriceStringToLong(currencyCode, stringValue, precision);
             } else {
                 return 0;
@@ -773,7 +775,7 @@ public class MobileNotificationsView extends ActivatableView<GridPane, Void> {
                 String currencyCode = selectedPriceAlertTradeCurrency;
                 int precision = CurrencyUtil.isCryptoCurrency(currencyCode) ?
                         Altcoin.SMALLEST_UNIT_EXPONENT : 2;
-                String stringValue = BSFormatter.formatRoundedDoubleWithPrecision(priceAsDouble, precision);
+                String stringValue = FormattingUtils.formatRoundedDoubleWithPrecision(priceAsDouble, precision);
                 inputTextField.setText(stringValue);
             }
         } catch (Throwable ignore) {

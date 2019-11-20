@@ -49,9 +49,10 @@ import bisq.core.provider.price.PriceFeedService;
 import bisq.core.user.DontShowAgainLookup;
 import bisq.core.user.Preferences;
 import bisq.core.user.User;
-import bisq.core.util.BSFormatter;
-import bisq.core.util.BsqFormatter;
-import bisq.core.util.CoinUtil;
+import bisq.core.util.coin.BsqFormatter;
+import bisq.core.util.coin.CoinFormatter;
+import bisq.core.util.coin.CoinUtil;
+import bisq.core.util.FormattingUtils;
 
 import bisq.network.p2p.P2PService;
 
@@ -188,11 +189,8 @@ public class GUIUtil {
         });
     }
 
-    @SuppressWarnings("PointlessBooleanExpression")
     public static void showFeeInfoBeforeExecute(Runnable runnable) {
-        //noinspection UnusedAssignment
         String key = "miningFeeInfo";
-        //noinspection ConstantConditions,ConstantConditions
         if (!DevEnv.isDevMode() && DontShowAgainLookup.showAgain(key)) {
             new Popup<>().attention(Res.get("guiUtil.miningFeeInfo", String.valueOf(GUIUtil.feeService.getTxFeePerByte().value)))
                     .onClose(runnable)
@@ -670,7 +668,7 @@ public class GUIUtil {
     }
 
     public static String getPercentage(Coin part, Coin total) {
-        return BSFormatter.formatToPercentWithSymbol((double) part.value / (double) total.value);
+        return FormattingUtils.formatToPercentWithSymbol((double) part.value / (double) total.value);
     }
 
     public static <T> T getParentOfType(Node node, Class<T> t) {
@@ -682,8 +680,7 @@ public class GUIUtil {
                 parent = parent.getParent();
             }
         }
-        //noinspection unchecked
-        return parent != null ? (T) parent : null;
+        return t.cast(parent);
     }
 
     public static void showClearXchangeWarning() {
@@ -755,7 +752,7 @@ public class GUIUtil {
         return true;
     }
 
-    public static void showWantToBurnBTCPopup(Coin miningFee, Coin amount, BSFormatter btcFormatter) {
+    public static void showWantToBurnBTCPopup(Coin miningFee, Coin amount, CoinFormatter btcFormatter) {
         new Popup<>().warning(Res.get("popup.warning.burnBTC", btcFormatter.formatCoinWithCode(miningFee),
                 btcFormatter.formatCoinWithCode(amount))).show();
     }
@@ -907,7 +904,7 @@ public class GUIUtil {
                                            Coin btcForIssuance,
                                            int txSize,
                                            BsqFormatter bsqFormatter,
-                                           BSFormatter btcFormatter,
+                                           CoinFormatter btcFormatter,
                                            String type,
                                            Runnable actionHandler) {
         String confirmationMessage;
@@ -940,7 +937,7 @@ public class GUIUtil {
     }
 
     public static void showBsqFeeInfoPopup(Coin fee, Coin miningFee, int txSize, BsqFormatter bsqFormatter,
-                                           BSFormatter btcFormatter, String type,
+                                           CoinFormatter btcFormatter, String type,
                                            Runnable actionHandler) {
         showBsqFeeInfoPopup(fee, miningFee, null, txSize, bsqFormatter, btcFormatter, type, actionHandler);
     }

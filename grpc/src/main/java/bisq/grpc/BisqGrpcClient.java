@@ -23,6 +23,8 @@ import bisq.core.proto.persistable.CorePersistenceProtoResolver;
 
 import org.bitcoinj.core.Coin;
 
+import java.time.Clock;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -197,7 +199,7 @@ public class BisqGrpcClient {
         placeOfferBlockingStub = PlaceOfferGrpc.newBlockingStub(channel);
         stopServerStub = StopServerGrpc.newBlockingStub(channel);
 
-        coreNetworkProtoResolver = new CoreNetworkProtoResolver();
+        coreNetworkProtoResolver = new CoreNetworkProtoResolver(Clock.systemDefaultZone());
         //TODO
         corePersistenceProtoResolver = new CorePersistenceProtoResolver(null, coreNetworkProtoResolver, null, null);
     }
