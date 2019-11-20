@@ -91,7 +91,8 @@ configure(subprojects) {
 }
 
 
-configure([project(':desktop'),
+configure([project(':cli'),
+           project(':desktop'),
            project(':grpc'),
            project(':monitor'),
            project(':pricenode'),
@@ -271,6 +272,14 @@ configure(project(':core')) {
 
     test {
         systemProperty 'jdk.attach.allowAttachSelf', true
+    }
+}
+
+configure(project(':cli')) {
+    mainClassName = 'bisq.cli.app.BisqCliMain'
+
+    dependencies {
+        compile project(':core')
     }
 }
 
