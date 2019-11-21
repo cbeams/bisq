@@ -21,8 +21,9 @@ import bisq.desktop.common.UITimer;
 import bisq.desktop.common.view.guice.InjectorViewFactory;
 import bisq.desktop.setup.DesktopPersistedDataHost;
 
-import bisq.core.CoreApi;
 import bisq.core.app.BisqExecutable;
+import bisq.core.grpc.BisqGrpcServer;
+import bisq.core.grpc.CoreApi;
 
 import bisq.common.UserThread;
 import bisq.common.app.AppModule;
@@ -38,10 +39,6 @@ import javafx.application.Platform;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
-
-
-
-import bisq.grpc.BisqGrpcServer;
 
 @Slf4j
 public class BisqAppMain extends BisqExecutable {
