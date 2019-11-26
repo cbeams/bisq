@@ -19,7 +19,6 @@ package bisq.daemon.app;
 
 import bisq.core.app.BisqExecutable;
 import bisq.core.app.BisqHeadlessAppMain;
-import bisq.core.app.BisqSetup;
 import bisq.core.app.CoreModule;
 import bisq.core.grpc.BisqGrpcServer;
 import bisq.core.grpc.CoreApi;
@@ -36,7 +35,7 @@ import java.util.concurrent.ThreadFactory;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class BisqDaemonMain extends BisqHeadlessAppMain implements BisqSetup.BisqSetupListener {
+public class BisqDaemonMain extends BisqHeadlessAppMain {
 
     public static void main(String[] args) throws Exception {
         if (BisqExecutable.setupInitialOptionParser(args)) {
