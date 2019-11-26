@@ -459,6 +459,8 @@ configure(project(':statsnode')) {
 configure(project(':daemon')) {
     mainClassName = 'bisq.daemon.app.BisqDaemonMain'
 
+    group = "network.bisq"
+
     dependencies {
         compile project(':core')
         implementation("io.grpc:grpc-stub:$grpcVersion") {
