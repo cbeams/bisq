@@ -17,16 +17,15 @@
 
 package bisq.daemon.app;
 
-import bisq.core.app.BisqHeadlessAppMain;
+import bisq.core.app.BisqExecutable;
 import bisq.core.app.CoreModule;
 import bisq.core.grpc.BisqGrpcServer;
 import bisq.core.grpc.CoreApi;
 
 import bisq.common.UserThread;
 import bisq.common.app.AppModule;
+import bisq.common.app.Version;
 import bisq.common.setup.CommonSetup;
-
-import joptsimple.OptionSet;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
@@ -36,15 +35,21 @@ import java.util.concurrent.ThreadFactory;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class BisqDaemonMain extends BisqHeadlessAppMain {
+public class BisqDaemonMain extends BisqExecutable {
+
+    protected BisqDaemon headlessApp;
+
+    public BisqDaemonMain() {
+        super("Bisq Daemon", "bisqd", "Bisq", Version.VERSION);
+    }
 
     public static void main(String[] args) throws Exception {
         new BisqDaemonMain().execute(args);
     }
 
     @Override
-    protected void doExecute(OptionSet options) {
-        super.doExecute(options);
+    protected void doExecute() {
+        super.doExecute();
         keepRunning();
     }
 
@@ -116,5 +121,10 @@ public class BisqDaemonMain extends BisqHeadlessAppMain {
 
         CoreApi coreApi = injector.getInstance(CoreApi.class);
         new BisqGrpcServer(coreApi);
+    }
+
+    @Override
+    public void onSetupComplete() {
+        log.info("onSetupComplete");
     }
 }
