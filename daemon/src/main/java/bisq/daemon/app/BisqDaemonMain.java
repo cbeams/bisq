@@ -26,6 +26,8 @@ import bisq.common.UserThread;
 import bisq.common.app.AppModule;
 import bisq.common.setup.CommonSetup;
 
+import joptsimple.OptionSet;
+
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import java.util.concurrent.Executors;
@@ -38,6 +40,21 @@ public class BisqDaemonMain extends BisqHeadlessAppMain {
 
     public static void main(String[] args) throws Exception {
         new BisqDaemonMain().execute(args);
+    }
+
+    @Override
+    protected void doExecute(OptionSet options) {
+        super.doExecute(options);
+        keepRunning();
+    }
+
+    private void keepRunning() {
+        while (true) {
+            try {
+                Thread.sleep(Long.MAX_VALUE);
+            } catch (InterruptedException ignore) {
+            }
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////
