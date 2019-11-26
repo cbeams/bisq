@@ -37,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BisqDaemonMain extends BisqExecutable {
 
-    protected BisqDaemon headlessApp;
+    protected BisqDaemon bisqDaemon;
 
     public BisqDaemonMain() {
         super("Bisq Daemon", "bisqd", "Bisq", Version.VERSION);
@@ -77,8 +77,8 @@ public class BisqDaemonMain extends BisqExecutable {
 
     @Override
     protected void launchApplication() {
-        headlessApp = new BisqDaemon();
-        CommonSetup.setup(BisqDaemonMain.this.headlessApp);
+        bisqDaemon = new BisqDaemon();
+        CommonSetup.setup(BisqDaemonMain.this.bisqDaemon);
 
         UserThread.execute(this::onApplicationLaunched);
     }
@@ -86,7 +86,7 @@ public class BisqDaemonMain extends BisqExecutable {
     @Override
     protected void onApplicationLaunched() {
         super.onApplicationLaunched();
-        headlessApp.setGracefulShutDownHandler(this);
+        bisqDaemon.setGracefulShutDownHandler(this);
     }
 
 
@@ -103,13 +103,13 @@ public class BisqDaemonMain extends BisqExecutable {
     protected void applyInjector() {
         super.applyInjector();
 
-        headlessApp.setInjector(injector);
+        bisqDaemon.setInjector(injector);
     }
 
     @Override
     protected void startApplication() {
         // We need to be in user thread! We mapped at launchApplication already...
-        headlessApp.startApplication();
+        bisqDaemon.startApplication();
 
         // In headless mode we don't have an async behaviour so we trigger the setup by calling onApplicationStarted
         onApplicationStarted();
