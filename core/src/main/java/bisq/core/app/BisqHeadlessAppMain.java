@@ -22,8 +22,6 @@ import bisq.common.app.AppModule;
 import bisq.common.app.Version;
 import bisq.common.setup.CommonSetup;
 
-import joptsimple.OptionSet;
-
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import java.util.concurrent.Executors;
@@ -47,13 +45,6 @@ public class BisqHeadlessAppMain extends BisqExecutable {
 
             new BisqHeadlessAppMain().execute(args);
         }
-    }
-
-    @Override
-    protected void doExecute(OptionSet options) {
-        super.doExecute(options);
-
-        keepRunning();
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////
@@ -112,14 +103,5 @@ public class BisqHeadlessAppMain extends BisqExecutable {
 
         // In headless mode we don't have an async behaviour so we trigger the setup by calling onApplicationStarted
         onApplicationStarted();
-    }
-
-    private void keepRunning() {
-        while (true) {
-            try {
-                Thread.sleep(Long.MAX_VALUE);
-            } catch (InterruptedException ignore) {
-            }
-        }
     }
 }
