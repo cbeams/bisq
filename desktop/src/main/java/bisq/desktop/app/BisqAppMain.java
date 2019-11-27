@@ -136,7 +136,7 @@ public class BisqAppMain extends BisqExecutable {
         /*
         if (runWithGrpcApi()) {
             CoreApi coreApi = injector.getInstance(CoreApi.class);
-            bisqGrpcServer = new BisqGrpcServer(coreApi);
+            new BisqGrpcServer(coreApi).start();
         }
         */
     }

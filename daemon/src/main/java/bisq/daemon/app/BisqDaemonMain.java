@@ -120,7 +120,7 @@ public class BisqDaemonMain extends BisqExecutable {
         super.onApplicationStarted();
 
         CoreApi coreApi = injector.getInstance(CoreApi.class);
-        new BisqGrpcServer(coreApi);
+        new BisqGrpcServer(coreApi).start();
     }
 
     @Override
