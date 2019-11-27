@@ -33,16 +33,24 @@ import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
-
 @Slf4j
 public class BisqGrpcServer {
 
     private final CoreApi coreApi;
-
-    private Server server;
+    private final Server server;
+    private final int port = 8888; // TODO: add to options
 
     public BisqGrpcServer(CoreApi coreApi) {
         this.coreApi = coreApi;
+        this.server = ServerBuilder.forPort(port)
+                .addService(new GetVersionService())
+                .addService(new GetBalanceService())
+                .addService(new GetTradeStatisticsService())
+                .addService(new GetOffersService())
+                .addService(new GetPaymentAccountsService())
+                .addService(new PlaceOfferService())
+                .addService(new StopServerService())
+                .build();
         try {
             start();
         } catch (IOException e) {
@@ -51,24 +59,9 @@ public class BisqGrpcServer {
     }
 
     private void start() throws IOException {
-        // TODO add to options
-        int port = 8888;
-
-        // Config services
-        server = ServerBuilder.forPort(port)
-                .addService(new GetVersionService())
-                .addService(new GetBalanceService())
-                .addService(new GetTradeStatisticsService())
-                .addService(new GetOffersService())
-                .addService(new GetPaymentAccountsService())
-                .addService(new PlaceOfferService())
-                .addService(new StopServerService())
-                .build()
-                .start();
-
+        server.start();
         log.info("Server started, listening on " + port);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            // Use stderr here since the logger may have been reset by its JVM shutdown hook.
             log.error("*** shutting down gRPC server since JVM is shutting down");
             stop();
             log.error("*** server shut down");
@@ -76,9 +69,7 @@ public class BisqGrpcServer {
     }
 
     private void stop() {
-        if (server != null) {
-            server.shutdown();
-        }
+        server.shutdown();
     }
 
     private class GetVersionService extends GetVersionGrpc.GetVersionImplBase {
