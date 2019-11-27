@@ -27,6 +27,7 @@ import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,15 +52,19 @@ public class BisqGrpcServer {
                 .addService(new PlaceOfferService())
                 .addService(new StopServerService())
                 .build();
-        try {
-            start();
-        } catch (IOException e) {
-            log.error(e.toString(), e);
-        }
     }
 
-    private void start() throws IOException {
-        server.start();
+    public void start() {
+        try {
+            server.start();
+        } catch (IOException ex) {
+            // According to io.grpc.Server Javadoc, an IOException is thrown only in the
+            // case that the server was unable to bind to its specified port. There is
+            // nothing to be handled by throwing this exception to the caller; the process
+            // should just halt and the port conflict should be resolved.
+            throw new UncheckedIOException(ex);
+        }
+
         log.info("Server started, listening on " + port);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.error("*** shutting down gRPC server since JVM is shutting down");

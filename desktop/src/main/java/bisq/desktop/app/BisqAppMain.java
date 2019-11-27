@@ -38,8 +38,6 @@ import javafx.application.Platform;
 
 import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.Nullable;
-
 @Slf4j
 public class BisqAppMain extends BisqExecutable {
     private BisqApp application;
@@ -47,9 +45,6 @@ public class BisqAppMain extends BisqExecutable {
     public BisqAppMain() {
         super("Bisq Desktop", "bisq-desktop", Version.VERSION);
     }
-
-    @Nullable
-    private BisqGrpcServer bisqGrpcServer;
 
     public static void main(String[] args) throws Exception {
         if (BisqExecutable.setupInitialOptionParser(args)) {
@@ -139,7 +134,7 @@ public class BisqAppMain extends BisqExecutable {
 
         if (runWithGrpcApi()) {
             CoreApi coreApi = injector.getInstance(CoreApi.class);
-            bisqGrpcServer = new BisqGrpcServer(coreApi);
+            new BisqGrpcServer(coreApi).start();
         }
     }
 
