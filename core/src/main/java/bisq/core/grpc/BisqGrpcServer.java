@@ -34,9 +34,6 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
 
-/**
- * gRPC server. Gets a instance of BisqFacade passed to access data from the running Bisq instance.
- */
 @Slf4j
 public class BisqGrpcServer {
 
@@ -44,9 +41,45 @@ public class BisqGrpcServer {
 
     private Server server;
 
-    ///////////////////////////////////////////////////////////////////////////////////////////
-    // Services
-    ///////////////////////////////////////////////////////////////////////////////////////////
+    public BisqGrpcServer(CoreApi coreApi) {
+        this.coreApi = coreApi;
+        try {
+            start();
+        } catch (IOException e) {
+            log.error(e.toString(), e);
+        }
+    }
+
+    private void start() throws IOException {
+        // TODO add to options
+        int port = 8888;
+
+        // Config services
+        server = ServerBuilder.forPort(port)
+                .addService(new GetVersionService())
+                .addService(new GetBalanceService())
+                .addService(new GetTradeStatisticsService())
+                .addService(new GetOffersService())
+                .addService(new GetPaymentAccountsService())
+                .addService(new PlaceOfferService())
+                .addService(new StopServerService())
+                .build()
+                .start();
+
+        log.info("Server started, listening on " + port);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            // Use stderr here since the logger may have been reset by its JVM shutdown hook.
+            log.error("*** shutting down gRPC server since JVM is shutting down");
+            stop();
+            log.error("*** server shut down");
+        }));
+    }
+
+    private void stop() {
+        if (server != null) {
+            server.shutdown();
+        }
+    }
 
     private class GetVersionService extends GetVersionGrpc.GetVersionImplBase {
         @Override
@@ -65,6 +98,7 @@ public class BisqGrpcServer {
             responseObserver.onCompleted();
         }
     }
+
 
     private class GetTradeStatisticsService extends GetTradeStatisticsGrpc.GetTradeStatisticsImplBase {
         @Override
@@ -138,61 +172,5 @@ public class BisqGrpcServer {
             responseObserver.onCompleted();
             stop();
         }
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////////////////////
-    // Constructor
-    ///////////////////////////////////////////////////////////////////////////////////////////
-
-    public BisqGrpcServer(CoreApi coreApi) {
-        this.coreApi = coreApi;
-
-        try {
-            start();
-
-        } catch (IOException e) {
-            log.error(e.toString(), e);
-        }
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////////////////////////
-    // API
-    ///////////////////////////////////////////////////////////////////////////////////////////
-
-    public void stop() {
-        if (server != null) {
-            server.shutdown();
-        }
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////
-    // Private
-    ///////////////////////////////////////////////////////////////////////////////////////////
-
-    private void start() throws IOException {
-        // TODO add to options
-        int port = 8888;
-
-        // Config services
-        server = ServerBuilder.forPort(port)
-                .addService(new GetVersionService())
-                .addService(new GetBalanceService())
-                .addService(new GetTradeStatisticsService())
-                .addService(new GetOffersService())
-                .addService(new GetPaymentAccountsService())
-                .addService(new PlaceOfferService())
-                .addService(new StopServerService())
-                .build()
-                .start();
-
-        log.info("Server started, listening on " + port);
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            // Use stderr here since the logger may have been reset by its JVM shutdown hook.
-            log.error("*** shutting down gRPC server since JVM is shutting down");
-            stop();
-            log.error("*** server shut down");
-        }));
     }
 }
