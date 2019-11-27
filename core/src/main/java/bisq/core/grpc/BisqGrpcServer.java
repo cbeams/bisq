@@ -40,17 +40,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BisqGrpcServer {
 
+    private final CoreApi coreApi;
+
     private Server server;
-
-    private static BisqGrpcServer instance;
-    private static CoreApi coreApi;
-
 
     ///////////////////////////////////////////////////////////////////////////////////////////
     // Services
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    static class GetVersionImpl extends GetVersionGrpc.GetVersionImplBase {
+    private class GetVersionImpl extends GetVersionGrpc.GetVersionImplBase {
         @Override
         public void getVersion(GetVersionRequest req, StreamObserver<GetVersionReply> responseObserver) {
             GetVersionReply reply = GetVersionReply.newBuilder().setVersion(coreApi.getVersion()).build();
@@ -59,7 +57,7 @@ public class BisqGrpcServer {
         }
     }
 
-    static class GetBalanceImpl extends GetBalanceGrpc.GetBalanceImplBase {
+    private class GetBalanceImpl extends GetBalanceGrpc.GetBalanceImplBase {
         @Override
         public void getBalance(GetBalanceRequest req, StreamObserver<GetBalanceReply> responseObserver) {
             GetBalanceReply reply = GetBalanceReply.newBuilder().setBalance(coreApi.getAvailableBalance()).build();
@@ -68,7 +66,7 @@ public class BisqGrpcServer {
         }
     }
 
-    static class GetTradeStatisticsImpl extends GetTradeStatisticsGrpc.GetTradeStatisticsImplBase {
+    private class GetTradeStatisticsImpl extends GetTradeStatisticsGrpc.GetTradeStatisticsImplBase {
         @Override
         public void getTradeStatistics(GetTradeStatisticsRequest req,
                                        StreamObserver<GetTradeStatisticsReply> responseObserver) {
@@ -81,7 +79,7 @@ public class BisqGrpcServer {
         }
     }
 
-    static class GetOffersImpl extends GetOffersGrpc.GetOffersImplBase {
+    private class GetOffersImpl extends GetOffersGrpc.GetOffersImplBase {
         @Override
         public void getOffers(GetOffersRequest req, StreamObserver<GetOffersReply> responseObserver) {
 
@@ -95,7 +93,7 @@ public class BisqGrpcServer {
         }
     }
 
-    static class GetPaymentAccountsImpl extends GetPaymentAccountsGrpc.GetPaymentAccountsImplBase {
+    private class GetPaymentAccountsImpl extends GetPaymentAccountsGrpc.GetPaymentAccountsImplBase {
         @Override
         public void getPaymentAccounts(GetPaymentAccountsRequest req,
                                        StreamObserver<GetPaymentAccountsReply> responseObserver) {
@@ -110,7 +108,7 @@ public class BisqGrpcServer {
         }
     }
 
-    static class PlaceOfferImpl extends PlaceOfferGrpc.PlaceOfferImplBase {
+    private class PlaceOfferImpl extends PlaceOfferGrpc.PlaceOfferImplBase {
         @Override
         public void placeOffer(PlaceOfferRequest req, StreamObserver<PlaceOfferReply> responseObserver) {
             TransactionResultHandler resultHandler = transaction -> {
@@ -132,14 +130,13 @@ public class BisqGrpcServer {
         }
     }
 
-    static class StopServerImpl extends StopServerGrpc.StopServerImplBase {
+    private class StopServerImpl extends StopServerGrpc.StopServerImplBase {
         @Override
         public void stopServer(StopServerRequest req, StreamObserver<StopServerReply> responseObserver) {
             StopServerReply reply = StopServerReply.newBuilder().build();
             responseObserver.onNext(reply);
             responseObserver.onCompleted();
-
-            instance.stop();
+            stop();
         }
     }
 
@@ -149,9 +146,7 @@ public class BisqGrpcServer {
     ///////////////////////////////////////////////////////////////////////////////////////////
 
     public BisqGrpcServer(CoreApi coreApi) {
-        instance = this;
-
-        BisqGrpcServer.coreApi = coreApi;
+        this.coreApi = coreApi;
 
         try {
             start();
@@ -196,7 +191,7 @@ public class BisqGrpcServer {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             // Use stderr here since the logger may have been reset by its JVM shutdown hook.
             log.error("*** shutting down gRPC server since JVM is shutting down");
-            BisqGrpcServer.this.stop();
+            stop();
             log.error("*** server shut down");
         }));
     }
