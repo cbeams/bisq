@@ -48,7 +48,7 @@ public class BisqGrpcServer {
     // Services
     ///////////////////////////////////////////////////////////////////////////////////////////
 
-    private class GetVersionImpl extends GetVersionGrpc.GetVersionImplBase {
+    private class GetVersionService extends GetVersionGrpc.GetVersionImplBase {
         @Override
         public void getVersion(GetVersionRequest req, StreamObserver<GetVersionReply> responseObserver) {
             GetVersionReply reply = GetVersionReply.newBuilder().setVersion(coreApi.getVersion()).build();
@@ -57,7 +57,7 @@ public class BisqGrpcServer {
         }
     }
 
-    private class GetBalanceImpl extends GetBalanceGrpc.GetBalanceImplBase {
+    private class GetBalanceService extends GetBalanceGrpc.GetBalanceImplBase {
         @Override
         public void getBalance(GetBalanceRequest req, StreamObserver<GetBalanceReply> responseObserver) {
             GetBalanceReply reply = GetBalanceReply.newBuilder().setBalance(coreApi.getAvailableBalance()).build();
@@ -66,7 +66,7 @@ public class BisqGrpcServer {
         }
     }
 
-    private class GetTradeStatisticsImpl extends GetTradeStatisticsGrpc.GetTradeStatisticsImplBase {
+    private class GetTradeStatisticsService extends GetTradeStatisticsGrpc.GetTradeStatisticsImplBase {
         @Override
         public void getTradeStatistics(GetTradeStatisticsRequest req,
                                        StreamObserver<GetTradeStatisticsReply> responseObserver) {
@@ -79,7 +79,7 @@ public class BisqGrpcServer {
         }
     }
 
-    private class GetOffersImpl extends GetOffersGrpc.GetOffersImplBase {
+    private class GetOffersService extends GetOffersGrpc.GetOffersImplBase {
         @Override
         public void getOffers(GetOffersRequest req, StreamObserver<GetOffersReply> responseObserver) {
 
@@ -93,7 +93,7 @@ public class BisqGrpcServer {
         }
     }
 
-    private class GetPaymentAccountsImpl extends GetPaymentAccountsGrpc.GetPaymentAccountsImplBase {
+    private class GetPaymentAccountsService extends GetPaymentAccountsGrpc.GetPaymentAccountsImplBase {
         @Override
         public void getPaymentAccounts(GetPaymentAccountsRequest req,
                                        StreamObserver<GetPaymentAccountsReply> responseObserver) {
@@ -108,7 +108,7 @@ public class BisqGrpcServer {
         }
     }
 
-    private class PlaceOfferImpl extends PlaceOfferGrpc.PlaceOfferImplBase {
+    private class PlaceOfferService extends PlaceOfferGrpc.PlaceOfferImplBase {
         @Override
         public void placeOffer(PlaceOfferRequest req, StreamObserver<PlaceOfferReply> responseObserver) {
             TransactionResultHandler resultHandler = transaction -> {
@@ -130,7 +130,7 @@ public class BisqGrpcServer {
         }
     }
 
-    private class StopServerImpl extends StopServerGrpc.StopServerImplBase {
+    private class StopServerService extends StopServerGrpc.StopServerImplBase {
         @Override
         public void stopServer(StopServerRequest req, StreamObserver<StopServerReply> responseObserver) {
             StopServerReply reply = StopServerReply.newBuilder().build();
@@ -177,13 +177,13 @@ public class BisqGrpcServer {
 
         // Config services
         server = ServerBuilder.forPort(port)
-                .addService(new GetVersionImpl())
-                .addService(new GetBalanceImpl())
-                .addService(new GetTradeStatisticsImpl())
-                .addService(new GetOffersImpl())
-                .addService(new GetPaymentAccountsImpl())
-                .addService(new PlaceOfferImpl())
-                .addService(new StopServerImpl())
+                .addService(new GetVersionService())
+                .addService(new GetBalanceService())
+                .addService(new GetTradeStatisticsService())
+                .addService(new GetOffersService())
+                .addService(new GetPaymentAccountsService())
+                .addService(new PlaceOfferService())
+                .addService(new StopServerService())
                 .build()
                 .start();
 
