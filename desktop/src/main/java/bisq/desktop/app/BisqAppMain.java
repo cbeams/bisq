@@ -48,8 +48,6 @@ public class BisqAppMain extends BisqExecutable {
         super("Bisq Desktop", "bisq-desktop", Version.VERSION);
     }
 
-    /* @Nullable
-     private BisqHttpApiServer bisqHttpApiServer;*/
     @Nullable
     private BisqGrpcServer bisqGrpcServer;
 
@@ -139,18 +137,10 @@ public class BisqAppMain extends BisqExecutable {
     protected void onApplicationStarted() {
         super.onApplicationStarted();
 
-       /* if (runWithHttpApi()) {
-            bisqHttpApiServer = new BisqHttpApiServer();
-        }*/
-
         if (runWithGrpcApi()) {
             CoreApi coreApi = injector.getInstance(CoreApi.class);
             bisqGrpcServer = new BisqGrpcServer(coreApi);
         }
-    }
-
-    private boolean runWithHttpApi() {
-        return bisqEnvironment.getDesktopWithHttpApi().toLowerCase().equals("true");
     }
 
     private boolean runWithGrpcApi() {
