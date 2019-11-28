@@ -47,21 +47,6 @@ public class BisqDaemonMain extends BisqExecutable {
         new BisqDaemonMain().execute(args);
     }
 
-    @Override
-    protected void doExecute() {
-        super.doExecute();
-        keepRunning();
-    }
-
-    private void keepRunning() {
-        while (true) {
-            try {
-                Thread.sleep(Long.MAX_VALUE);
-            } catch (InterruptedException ignore) {
-            }
-        }
-    }
-
     ///////////////////////////////////////////////////////////////////////////////////////////
     // First synchronous execution tasks
     ///////////////////////////////////////////////////////////////////////////////////////////
@@ -70,7 +55,7 @@ public class BisqDaemonMain extends BisqExecutable {
     protected void configUserThread() {
         final ThreadFactory threadFactory = new ThreadFactoryBuilder()
                 .setNameFormat(this.getClass().getSimpleName())
-                .setDaemon(true)
+                .setDaemon(false)
                 .build();
         UserThread.setExecutor(Executors.newSingleThreadExecutor(threadFactory));
     }
