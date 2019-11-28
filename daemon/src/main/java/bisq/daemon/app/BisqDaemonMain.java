@@ -27,8 +27,6 @@ import bisq.common.app.AppModule;
 import bisq.common.app.Version;
 import bisq.common.setup.CommonSetup;
 
-import joptsimple.OptionSet;
-
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import java.util.concurrent.Executors;
@@ -55,21 +53,6 @@ public class BisqDaemonMain extends BisqExecutable {
         }
     }
 
-    @Override
-    protected void doExecute(OptionSet options) {
-        super.doExecute(options);
-        keepRunning();
-    }
-
-    private void keepRunning() {
-        while (true) {
-            try {
-                Thread.sleep(Long.MAX_VALUE);
-            } catch (InterruptedException ignore) {
-            }
-        }
-    }
-
     ///////////////////////////////////////////////////////////////////////////////////////////
     // First synchronous execution tasks
     ///////////////////////////////////////////////////////////////////////////////////////////
@@ -78,7 +61,7 @@ public class BisqDaemonMain extends BisqExecutable {
     protected void configUserThread() {
         final ThreadFactory threadFactory = new ThreadFactoryBuilder()
                 .setNameFormat(this.getClass().getSimpleName())
-                .setDaemon(true)
+                .setDaemon(false)
                 .build();
         UserThread.setExecutor(Executors.newSingleThreadExecutor(threadFactory));
     }
