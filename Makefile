@@ -247,6 +247,15 @@ bob: setup
 		--appDataDir=.localnet/bob \
 		--appName=Bob
 
+daemon: setup
+	./bisq-daemon \
+		--baseCurrencyNetwork=BTC_REGTEST \
+		--useLocalhostForP2P=true \
+		--useDevPrivilegeKeys=true \
+		--nodePort=7777 \
+		--appDataDir=.localnet/daemon \
+		--appName=Daemon
+
 # Generate a new block on your Bitcoin regtest network. Requires that
 # bitcoind is already running. See the `bitcoind` target above.
 block:
