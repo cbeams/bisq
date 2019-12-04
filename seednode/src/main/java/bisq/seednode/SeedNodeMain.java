@@ -51,12 +51,9 @@ public class SeedNodeMain extends ExecutableForAppWithP2p {
 
     @Override
     protected void doExecute(OptionSet options) {
-        super.doExecute(options);
-
         checkMemory(bisqEnvironment, this);
         startShutDownInterval(this);
         CommonSetup.setup(this);
-
         keepRunning();
     }
 
@@ -76,12 +73,6 @@ public class SeedNodeMain extends ExecutableForAppWithP2p {
             }
         });
     }
-
-    @Override
-    protected void onApplicationLaunched() {
-        super.onApplicationLaunched();
-    }
-
 
     ///////////////////////////////////////////////////////////////////////////////////////////
     // We continue with a series of synchronous execution tasks

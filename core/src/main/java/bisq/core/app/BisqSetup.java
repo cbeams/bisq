@@ -126,7 +126,9 @@ import javax.annotation.Nullable;
 @Slf4j
 @Singleton
 public class BisqSetup {
+
     public interface BisqSetupListener {
+
         default void onInitP2pNetwork() {
             log.info("onInitP2pNetwork");
         }
@@ -139,7 +141,9 @@ public class BisqSetup {
             log.info("onRequestWalletPassword");
         }
 
-        void onSetupComplete();
+        default void onSetupComplete() {
+            log.info("onSetupComplete");
+        }
     }
 
     private static final long STARTUP_TIMEOUT_MINUTES = 4;

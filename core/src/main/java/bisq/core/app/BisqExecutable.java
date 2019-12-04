@@ -143,14 +143,6 @@ public abstract class BisqExecutable implements GracefulShutDownHandler, BisqSet
             return;
         }
 
-        this.doExecute(options);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////
-    // First synchronous execution tasks
-    ///////////////////////////////////////////////////////////////////////////////////////////
-
-    protected void doExecute(OptionSet options) {
         setupEnvironment(options);
         configUserThread();
         configCoreSetup(options);
@@ -158,9 +150,13 @@ public abstract class BisqExecutable implements GracefulShutDownHandler, BisqSet
 
         // If application is JavaFX application we need to wait until it is initialized
         launchApplication();
+
+        doExecute(options);
     }
 
-    protected abstract void configUserThread();
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    // First synchronous execution tasks
+    ///////////////////////////////////////////////////////////////////////////////////////////
 
     protected void setupEnvironment(OptionSet options) {
         /*
@@ -188,6 +184,9 @@ public abstract class BisqExecutable implements GracefulShutDownHandler, BisqSet
         }
     }
 
+    protected abstract void configUserThread();
+
+
     protected void configCoreSetup(OptionSet options) {
         CoreSetup.setup(getBisqEnvironment(options));
     }
@@ -195,16 +194,16 @@ public abstract class BisqExecutable implements GracefulShutDownHandler, BisqSet
     protected void addCapabilities() {
     }
 
-    // The onApplicationLaunched call must map to UserThread, so that all following methods are running in the
-    // thread the application is running and we don't run into thread interference.
+    // The onApplicationLaunched call must map to UserThread, so that all following
+    // methods are running in the thread the application is running and we don't run into
+    // thread interference.
     protected abstract void launchApplication();
 
+    protected void doExecute(OptionSet options) {
+    }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////
     // If application is a JavaFX application we need wait for onApplicationLaunched
-    ///////////////////////////////////////////////////////////////////////////////////////////
-
-    // Headless versions can call inside launchApplication the onApplicationLaunched() manually
+    // Headless versions can call inside launchApplication onApplicationLaunched() manually
     protected void onApplicationLaunched() {
         setupGuice();
         startApplication();
@@ -217,19 +216,14 @@ public abstract class BisqExecutable implements GracefulShutDownHandler, BisqSet
 
     protected void setupGuice() {
         module = getModule();
-        injector = getInjector();
+        injector = Guice.createInjector(module);
         applyInjector();
     }
 
     protected abstract AppModule getModule();
 
-    protected Injector getInjector() {
-        return Guice.createInjector(module);
-    }
-
     protected void applyInjector() {
         setupDevEnv();
-
         setupPersistedDataHosts(injector);
     }
 
@@ -264,9 +258,6 @@ public abstract class BisqExecutable implements GracefulShutDownHandler, BisqSet
         bisqSetup.addBisqSetupListener(this);
         bisqSetup.start();
     }
-
-    public abstract void onSetupComplete();
-
 
     ///////////////////////////////////////////////////////////////////////////////////////////
     // GracefulShutDownHandler implementation

@@ -18,14 +18,16 @@
 package bisq.daemon.app;
 
 import bisq.core.app.BisqExecutable;
+import bisq.core.app.BisqSetup;
 import bisq.core.app.CoreModule;
-import bisq.core.grpc.BisqGrpcServer;
 import bisq.core.grpc.CoreApi;
+import bisq.core.trade.TradeManager;
 
 import bisq.common.UserThread;
 import bisq.common.app.AppModule;
 import bisq.common.app.Version;
 import bisq.common.setup.CommonSetup;
+import bisq.common.storage.CorruptedDatabaseFilesHandler;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
@@ -37,31 +39,21 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BisqDaemonMain extends BisqExecutable {
 
-    protected BisqDaemon bisqDaemon;
+    private BisqDaemon bisqDaemon;
 
-    public BisqDaemonMain() {
+    private BisqDaemonMain() {
         super("Bisq Daemon", "bisqd", Version.VERSION);
     }
 
     public static void main(String[] args) throws Exception {
-        if (BisqExecutable.setupInitialOptionParser(args)) {
-            // For some reason the JavaFX launch process results in us losing the thread context class loader: reset it.
-            // In order to work around a bug in JavaFX 8u25 and below, you must include the following code as the first line of your realMain method:
-            Thread.currentThread().setContextClassLoader(BisqDaemonMain.class.getClassLoader());
-
-            new BisqDaemonMain().execute(args);
-        }
+        new BisqDaemonMain().execute(args);
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////
-    // First synchronous execution tasks
-    ///////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     protected void configUserThread() {
-        final ThreadFactory threadFactory = new ThreadFactoryBuilder()
+        ThreadFactory threadFactory = new ThreadFactoryBuilder()
                 .setNameFormat(this.getClass().getSimpleName())
-                .setDaemon(false)
+                .setDaemon(false) // keep daemon process alive until user kills it
                 .build();
         UserThread.setExecutor(Executors.newSingleThreadExecutor(threadFactory));
     }
@@ -69,21 +61,10 @@ public class BisqDaemonMain extends BisqExecutable {
     @Override
     protected void launchApplication() {
         bisqDaemon = new BisqDaemon();
-        CommonSetup.setup(BisqDaemonMain.this.bisqDaemon);
-
-        UserThread.execute(this::onApplicationLaunched);
-    }
-
-    @Override
-    protected void onApplicationLaunched() {
-        super.onApplicationLaunched();
         bisqDaemon.setGracefulShutDownHandler(this);
+        CommonSetup.setup(bisqDaemon);
+        onApplicationLaunched();
     }
-
-
-    ///////////////////////////////////////////////////////////////////////////////////////////
-    // We continue with a series of synchronous execution tasks
-    ///////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     protected AppModule getModule() {
@@ -93,29 +74,15 @@ public class BisqDaemonMain extends BisqExecutable {
     @Override
     protected void applyInjector() {
         super.applyInjector();
-
-        bisqDaemon.setInjector(injector);
+        bisqDaemon.setBisqSetup(injector.getInstance(BisqSetup.class));
+        bisqDaemon.setCorruptedDatabaseFilesHandler(injector.getInstance(CorruptedDatabaseFilesHandler.class));
+        bisqDaemon.setTradeManager(injector.getInstance(TradeManager.class));
+        bisqDaemon.setCoreApi(injector.getInstance(CoreApi.class));
     }
 
     @Override
     protected void startApplication() {
-        // We need to be in user thread! We mapped at launchApplication already...
         bisqDaemon.startApplication();
-
-        // In headless mode we don't have an async behaviour so we trigger the setup by calling onApplicationStarted
         onApplicationStarted();
-    }
-
-    @Override
-    protected void onApplicationStarted() {
-        super.onApplicationStarted();
-
-        CoreApi coreApi = injector.getInstance(CoreApi.class);
-        new BisqGrpcServer(coreApi).start();
-    }
-
-    @Override
-    public void onSetupComplete() {
-        log.info("onSetupComplete");
     }
 }

@@ -49,16 +49,9 @@ public class StatisticsMain extends ExecutableForAppWithP2p {
 
     @Override
     protected void doExecute(OptionSet options) {
-        super.doExecute(options);
-
         checkMemory(bisqEnvironment, this);
         CommonSetup.setup(this);
-
         keepRunning();
-    }
-
-    @Override
-    protected void addCapabilities() {
     }
 
     @Override
