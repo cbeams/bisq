@@ -41,12 +41,12 @@ public class BisqDaemonMain extends BisqExecutable {
 
     private BisqDaemon bisqDaemon;
 
-    private BisqDaemonMain() {
-        super("Bisq Daemon", "bisqd", Version.VERSION);
+    private BisqDaemonMain(String[] args) {
+        super("Bisq Daemon", "bisqd", Version.VERSION, args);
     }
 
-    public static void main(String[] args) throws Exception {
-        new BisqDaemonMain().execute(args);
+    public static void main(String[] args) {
+        new BisqDaemonMain(args).execute();
     }
 
     @Override

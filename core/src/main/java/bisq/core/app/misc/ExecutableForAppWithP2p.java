@@ -47,6 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class ExecutableForAppWithP2p extends BisqExecutable implements UncaughtExceptionHandler {
+
     private static final long MAX_MEMORY_MB_DEFAULT = 1200;
     private static final long CHECK_MEMORY_PERIOD_SEC = 300;
     private static final long CHECK_SHUTDOWN_SEC = TimeUnit.HOURS.toSeconds(1);
@@ -55,8 +56,8 @@ public abstract class ExecutableForAppWithP2p extends BisqExecutable implements 
     private final long startTime = System.currentTimeMillis();
     private static long maxMemory = MAX_MEMORY_MB_DEFAULT;
 
-    public ExecutableForAppWithP2p(String fullName, String scriptName, String version) {
-        super(fullName, scriptName, version);
+    public ExecutableForAppWithP2p(String fullName, String scriptName, String version, String[] args) {
+        super(fullName, scriptName, version, args);
     }
 
     @Override
