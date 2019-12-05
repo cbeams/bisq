@@ -15,7 +15,7 @@
  * along with Bisq. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package bisq.desktop;
+package bisq.desktop.app;
 
 import bisq.desktop.common.fxml.FxmlViewLoader;
 import bisq.desktop.common.view.ViewFactory;
@@ -23,9 +23,10 @@ import bisq.desktop.common.view.ViewLoader;
 import bisq.desktop.common.view.guice.InjectorViewFactory;
 
 import bisq.core.app.AppOptionKeys;
+import bisq.core.app.CoreModule;
 import bisq.core.locale.Res;
 
-import bisq.common.app.AppModule;
+import bisq.common.app.BisqModule;
 
 import org.springframework.core.env.Environment;
 
@@ -34,7 +35,7 @@ import com.google.inject.name.Names;
 
 import java.util.ResourceBundle;
 
-public class DesktopModule extends AppModule {
+public class DesktopModule extends BisqModule {
 
 
     public DesktopModule(Environment environment) {
@@ -43,11 +44,14 @@ public class DesktopModule extends AppModule {
 
     @Override
     protected void configure() {
+        install(new CoreModule(environment));
         bind(ViewFactory.class).to(InjectorViewFactory.class);
 
         bind(ResourceBundle.class).toInstance(Res.getResourceBundle());
         bind(ViewLoader.class).to(FxmlViewLoader.class).in(Singleton.class);
 
-        bindConstant().annotatedWith(Names.named(AppOptionKeys.APP_NAME_KEY)).to(environment.getRequiredProperty(AppOptionKeys.APP_NAME_KEY));
+        bindConstant()
+                .annotatedWith(Names.named(AppOptionKeys.APP_NAME_KEY))
+                .to(environment.getRequiredProperty(AppOptionKeys.APP_NAME_KEY));
     }
 }

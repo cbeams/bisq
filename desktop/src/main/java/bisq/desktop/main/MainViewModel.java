@@ -17,7 +17,7 @@
 
 package bisq.desktop.main;
 
-import bisq.desktop.app.BisqApp;
+import bisq.desktop.app.DesktopNodeApplication;
 import bisq.desktop.common.model.ViewModel;
 import bisq.desktop.components.BalanceWithConfirmationTextField;
 import bisq.desktop.components.TxIdTextField;
@@ -315,7 +315,7 @@ public class MainViewModel implements ViewModel, BisqSetup.BisqSetupListener {
         bisqSetup.setShowFirstPopupIfResyncSPVRequestedHandler(this::showFirstPopupIfResyncSPVRequested);
         bisqSetup.setRequestWalletPasswordHandler(aesKeyHandler -> walletPasswordWindow
                 .onAesKey(aesKeyHandler::accept)
-                .onClose(() -> BisqApp.getShutDownHandler().run())
+                .onClose(() -> DesktopNodeApplication.getShutDownHandler().run())
                 .show());
 
         bisqSetup.setDisplayUpdateHandler((alert, key) -> new DisplayUpdateDownloadWindow(alert)

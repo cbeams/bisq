@@ -104,7 +104,7 @@ call "%JAVA_HOME%\bin\javapackager.exe" -deploy ^
 -title Bisq ^
 -vendor Bisq ^
 -outdir "%package_dir%\windows" ^
--appclass bisq.desktop.app.BisqAppMain ^
+-appclass bisq.desktop.app.DesktopNode ^
 -srcdir "%package_dir%" ^
 -srcfiles %jar_filename% ^
 -outfile Bisq ^

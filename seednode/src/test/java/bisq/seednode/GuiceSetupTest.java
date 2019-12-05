@@ -2,7 +2,7 @@ package bisq.seednode;
 
 import bisq.core.app.BisqEnvironment;
 import bisq.core.app.misc.AppSetupWithP2PAndDAO;
-import bisq.core.app.misc.ModuleForAppWithP2p;
+import bisq.core.app.misc.NodeWithP2PModule;
 import bisq.core.locale.CurrencyUtil;
 import bisq.core.locale.Res;
 
@@ -18,7 +18,7 @@ public class GuiceSetupTest {
         Res.setup();
         CurrencyUtil.setup();
 
-        ModuleForAppWithP2p module = new ModuleForAppWithP2p(new BisqEnvironment(new MockPropertySource()));
+        NodeWithP2PModule module = new NodeWithP2PModule(new BisqEnvironment(new MockPropertySource()));
         Guice.createInjector(module).getInstance(AppSetupWithP2PAndDAO.class);
     }
 }

@@ -39,7 +39,7 @@ import bisq.network.p2p.seed.SeedNodeRepository;
 
 import bisq.common.ClockWatcher;
 import bisq.common.CommonOptionKeys;
-import bisq.common.app.AppModule;
+import bisq.common.app.BisqModule;
 import bisq.common.crypto.KeyRing;
 import bisq.common.crypto.KeyStorage;
 import bisq.common.crypto.PubKeyRing;
@@ -57,9 +57,9 @@ import java.io.File;
 
 import static com.google.inject.name.Names.named;
 
-public class ModuleForAppWithP2p extends AppModule {
+public class NodeWithP2PModule extends BisqModule {
 
-    public ModuleForAppWithP2p(Environment environment) {
+    public NodeWithP2PModule(Environment environment) {
         super(environment);
     }
 

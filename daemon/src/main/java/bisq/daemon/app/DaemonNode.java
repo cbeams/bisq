@@ -17,34 +17,85 @@
 
 package bisq.daemon.app;
 
+import bisq.core.app.BisqNode;
 import bisq.core.app.BisqSetup;
+import bisq.core.app.CoreModule;
 import bisq.core.grpc.BisqGrpcServer;
 import bisq.core.grpc.CoreApi;
 import bisq.core.trade.TradeManager;
 
 import bisq.common.UserThread;
-import bisq.common.setup.GracefulShutDownHandler;
-import bisq.common.setup.UncaughtExceptionHandler;
+import bisq.common.app.BisqModule;
+import bisq.common.app.Version;
+import bisq.common.setup.CommonSetup;
 import bisq.common.storage.CorruptedDatabaseFilesHandler;
 import bisq.common.util.Profiler;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class BisqDaemon implements UncaughtExceptionHandler, BisqSetup.BisqSetupListener {
+public class DaemonNode extends BisqNode {
 
     private static final long LOG_MEMORY_PERIOD_MIN = 10;
 
-    private GracefulShutDownHandler gracefulShutDownHandler;
-    private boolean shutDownRequested;
     private BisqSetup bisqSetup;
     private CorruptedDatabaseFilesHandler corruptedDatabaseFilesHandler;
     private TradeManager tradeManager;
     private CoreApi coreApi;
 
-    void startApplication() {
+    private boolean shutDownRequested;
+
+
+    private DaemonNode(String[] args) {
+        super("Bisq Daemon", "bisqd", Version.VERSION, args);
+    }
+
+    public static void main(String[] args) {
+        new DaemonNode(args).execute();
+    }
+
+    @Override
+    protected void configUserThread() {
+        ThreadFactory threadFactory = new ThreadFactoryBuilder()
+                .setNameFormat(this.getClass().getSimpleName())
+                .setDaemon(false) // keep daemon process alive until user kills it
+                .build();
+        UserThread.setExecutor(Executors.newSingleThreadExecutor(threadFactory));
+    }
+
+    @Override
+    protected void launchApplication() {
+        CommonSetup.setup(this);
+        onApplicationLaunched();
+    }
+
+    @Override
+    protected BisqModule getModule() {
+        return new CoreModule(bisqEnvironment);
+    }
+
+    @Override
+    protected void applyInjector() {
+        super.applyInjector();
+        this.bisqSetup = injector.getInstance(BisqSetup.class);
+        this.corruptedDatabaseFilesHandler = injector.getInstance(CorruptedDatabaseFilesHandler.class);
+        this.tradeManager = injector.getInstance(TradeManager.class);
+        this.coreApi = injector.getInstance(CoreApi.class);
+    }
+
+    @Override
+    protected void startApplication() {
+        ackchyuallyStartApplication();
+        onApplicationStarted();
+    }
+
+    void ackchyuallyStartApplication() {
         try {
             bisqSetup.addBisqSetupListener(this);
 
@@ -90,7 +141,7 @@ public class BisqDaemon implements UncaughtExceptionHandler, BisqSetup.BisqSetup
     private void stop() {
         if (!shutDownRequested) {
             UserThread.runAfter(() -> {
-                gracefulShutDownHandler.gracefulShutDown(() -> {
+                gracefulShutDown(() -> {
                     log.debug("App shutdown complete");
                 });
             }, 200, TimeUnit.MILLISECONDS);
@@ -119,23 +170,4 @@ public class BisqDaemon implements UncaughtExceptionHandler, BisqSetup.BisqSetup
         }
     }
 
-    void setGracefulShutDownHandler(GracefulShutDownHandler gracefulShutDownHandler) {
-        this.gracefulShutDownHandler = gracefulShutDownHandler;
-    }
-
-    void setBisqSetup(BisqSetup bisqSetup) {
-        this.bisqSetup = bisqSetup;
-    }
-
-    void setCorruptedDatabaseFilesHandler(CorruptedDatabaseFilesHandler corruptedDatabaseFilesHandler) {
-        this.corruptedDatabaseFilesHandler = corruptedDatabaseFilesHandler;
-    }
-
-    void setTradeManager(TradeManager tradeManager) {
-        this.tradeManager = tradeManager;
-    }
-
-    void setCoreApi(CoreApi coreApi) {
-        this.coreApi = coreApi;
-    }
 }

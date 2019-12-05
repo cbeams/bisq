@@ -21,12 +21,12 @@ import bisq.desktop.common.UITimer;
 import bisq.desktop.common.view.guice.InjectorViewFactory;
 import bisq.desktop.setup.DesktopPersistedDataHost;
 
-import bisq.core.app.BisqExecutable;
+import bisq.core.app.BisqNode;
 import bisq.core.grpc.BisqGrpcServer;
 import bisq.core.grpc.CoreApi;
 
 import bisq.common.UserThread;
-import bisq.common.app.AppModule;
+import bisq.common.app.BisqModule;
 import bisq.common.app.Version;
 import bisq.common.proto.persistable.PersistedDataHost;
 import bisq.common.setup.CommonSetup;
@@ -39,11 +39,11 @@ import javafx.application.Platform;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class BisqAppMain extends BisqExecutable {
+public class DesktopNode extends BisqNode {
 
-    private BisqApp application;
+    private DesktopNodeApplication application;
 
-    private BisqAppMain(String[] args) {
+    private DesktopNode(String[] args) {
         super("Bisq Desktop", "bisq-desktop", Version.VERSION, args);
     }
 
@@ -52,9 +52,9 @@ public class BisqAppMain extends BisqExecutable {
         // context class loader: reset it. In order to work around a bug in JavaFX 8u25
         // and below, you must include the following code as the first line of your
         // realMain method:
-        Thread.currentThread().setContextClassLoader(BisqAppMain.class.getClassLoader());
+        Thread.currentThread().setContextClassLoader(DesktopNode.class.getClassLoader());
 
-        new BisqAppMain(args).execute();
+        new DesktopNode(args).execute();
     }
 
 
@@ -70,18 +70,17 @@ public class BisqAppMain extends BisqExecutable {
 
     @Override
     protected void launchApplication() {
-        BisqApp.setAppLaunchedHandler(application -> {
-            BisqAppMain.this.application = (BisqApp) application;
+        DesktopNodeApplication.setAppLaunchedHandler(application -> {
+            DesktopNode.this.application = (DesktopNodeApplication) application;
 
             // Necessary to do the setup at this point to prevent Bouncy Castle errors
-            CommonSetup.setup(BisqAppMain.this.application);
+            CommonSetup.setup(DesktopNode.this.application);
             // Map to user thread!
             UserThread.execute(this::onApplicationLaunched);
         });
 
-        Application.launch(BisqApp.class);
+        Application.launch(DesktopNodeApplication.class);
     }
-
 
     ///////////////////////////////////////////////////////////////////////////////////////////
     // As application is a JavaFX application we need to wait for onApplicationLaunched
@@ -98,8 +97,8 @@ public class BisqAppMain extends BisqExecutable {
     ///////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    protected AppModule getModule() {
-        return new BisqAppModule(bisqEnvironment);
+    protected BisqModule getModule() {
+        return new DesktopModule(bisqEnvironment);
     }
 
     @Override
@@ -136,5 +135,10 @@ public class BisqAppMain extends BisqExecutable {
 
     private boolean runWithGrpcApi() {
         return bisqEnvironment.getDesktopWithGrpcApi().toLowerCase().equals("true");
+    }
+
+    @Override
+    public void handleUncaughtException(Throwable throwable, boolean doShutDown) {
+        log.info("DesktopNode.handleUncaughtException");
     }
 }

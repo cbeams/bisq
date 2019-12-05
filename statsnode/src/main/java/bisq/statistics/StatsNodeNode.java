@@ -15,54 +15,46 @@
  * along with Bisq. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package bisq.seednode;
+package bisq.statistics;
 
 import bisq.core.app.BisqEnvironment;
-import bisq.core.app.misc.ExecutableForAppWithP2p;
-import bisq.core.app.misc.ModuleForAppWithP2p;
+import bisq.core.app.misc.NodeWithP2P;
+import bisq.core.app.misc.NodeWithP2PModule;
 
 import bisq.common.UserThread;
-import bisq.common.app.AppModule;
-import bisq.common.app.Capabilities;
-import bisq.common.app.Capability;
+import bisq.common.app.BisqModule;
 import bisq.common.setup.CommonSetup;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class SeedNodeMain extends ExecutableForAppWithP2p {
+public class StatsNodeNode extends NodeWithP2P {
 
-    private static final String VERSION = "1.2.3";
-    private SeedNode seedNode;
+    private static final String VERSION = "1.0.1";
+    private Statistics statistics;
 
-    private SeedNodeMain(String... args) {
-        super("Bisq Seednode", "bisq-seednode", VERSION, args);
+    private StatsNodeNode(String[] args) {
+        super("Bisq Statsnode", "bisq-statsnode", VERSION, args);
     }
 
     public static void main(String[] args) {
-        log.info("SeedNode.VERSION: " + VERSION);
-        BisqEnvironment.setDefaultAppName("bisq_seednode");
-        new SeedNodeMain(args).execute();
+        log.info("Statistics.VERSION: " + VERSION);
+        BisqEnvironment.setDefaultAppName("bisq_statistics");
+        new StatsNodeNode(args).execute();
     }
 
     @Override
     protected void doExecute() {
         checkMemory(bisqEnvironment, this);
-        startShutDownInterval(this);
         CommonSetup.setup(this);
         keepRunning();
-    }
-
-    @Override
-    protected void addCapabilities() {
-        Capabilities.app.addAll(Capability.SEED_NODE);
     }
 
     @Override
     protected void launchApplication() {
         UserThread.execute(() -> {
             try {
-                seedNode = new SeedNode();
+                statistics = new Statistics();
                 UserThread.execute(this::onApplicationLaunched);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -70,24 +62,30 @@ public class SeedNodeMain extends ExecutableForAppWithP2p {
         });
     }
 
+    @Override
+    protected void onApplicationLaunched() {
+        super.onApplicationLaunched();
+    }
+
+
     ///////////////////////////////////////////////////////////////////////////////////////////
     // We continue with a series of synchronous execution tasks
     ///////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    protected AppModule getModule() {
-        return new ModuleForAppWithP2p(bisqEnvironment);
+    protected BisqModule getModule() {
+        return new NodeWithP2PModule(bisqEnvironment);
     }
 
     @Override
     protected void applyInjector() {
         super.applyInjector();
 
-        seedNode.setInjector(injector);
+        statistics.setInjector(injector);
     }
 
     @Override
     protected void startApplication() {
-        seedNode.startApplication();
+        statistics.startApplication();
     }
 }

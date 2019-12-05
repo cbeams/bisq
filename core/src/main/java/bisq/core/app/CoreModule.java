@@ -38,7 +38,7 @@ import bisq.network.p2p.network.BridgeAddressProvider;
 import bisq.network.p2p.seed.SeedNodeRepository;
 
 import bisq.common.CommonOptionKeys;
-import bisq.common.app.AppModule;
+import bisq.common.app.BisqModule;
 import bisq.common.crypto.KeyStorage;
 import bisq.common.crypto.PubKeyRing;
 import bisq.common.crypto.PubKeyRingProvider;
@@ -54,7 +54,7 @@ import java.io.File;
 
 import static com.google.inject.name.Names.named;
 
-public class CoreModule extends AppModule {
+public class CoreModule extends BisqModule {
 
     public CoreModule(Environment environment) {
         super(environment);

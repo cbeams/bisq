@@ -17,7 +17,7 @@
 
 package bisq.core.offer;
 
-import bisq.common.app.AppModule;
+import bisq.common.app.BisqModule;
 
 import org.springframework.core.env.Environment;
 
@@ -26,7 +26,7 @@ import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class OfferModule extends AppModule {
+public class OfferModule extends BisqModule {
 
     public OfferModule(Environment environment) {
         super(environment);

@@ -65,7 +65,6 @@ import javafx.stage.StageStyle;
 
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
@@ -92,7 +91,7 @@ import static bisq.desktop.util.Layout.MIN_WINDOW_HEIGHT;
 import static bisq.desktop.util.Layout.MIN_WINDOW_WIDTH;
 
 @Slf4j
-public class BisqApp extends Application implements UncaughtExceptionHandler {
+public class DesktopNodeApplication extends Application implements UncaughtExceptionHandler {
     private static final long LOG_MEMORY_PERIOD_MIN = 10;
     @Setter
     private static Consumer<Application> appLaunchedHandler;
@@ -108,7 +107,7 @@ public class BisqApp extends Application implements UncaughtExceptionHandler {
     private Scene scene;
     private boolean shutDownRequested;
 
-    public BisqApp() {
+    public DesktopNodeApplication() {
         shutDownHandler = this::stop;
     }
 

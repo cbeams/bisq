@@ -27,24 +27,25 @@ import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AppModule extends AbstractModule {
+public abstract class BisqModule extends AbstractModule {
+
     protected final Environment environment;
 
-    private final List<AppModule> modules = new ArrayList<>();
+    private final List<BisqModule> modules = new ArrayList<>();
 
-    protected AppModule(Environment environment) {
+    protected BisqModule(Environment environment) {
         Preconditions.checkNotNull(environment, "Environment must not be null");
         this.environment = environment;
     }
 
-    protected void install(AppModule module) {
+    protected void install(BisqModule module) {
         super.install(module);
         modules.add(module);
     }
 
     /**
      * Close any instances this module is responsible for and recursively close any
-     * sub-modules installed via {@link #install(AppModule)}. This method
+     * sub-modules installed via {@link #install(BisqModule)}. This method
      * must be called manually, e.g. at the end of a main() method or in the stop() method
      * of a JavaFX Application; alternatively it may be registered as a JVM shutdown hook.
      *
@@ -62,7 +63,7 @@ public abstract class AppModule extends AbstractModule {
      *
      * @param injector the Injector originally initialized with this module
      */
-    @SuppressWarnings({"WeakerAccess", "EmptyMethod", "UnusedParameters"})
+    @SuppressWarnings({"EmptyMethod", "UnusedParameters"})
     protected void doClose(Injector injector) {
     }
 }

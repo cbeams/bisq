@@ -106,7 +106,7 @@ $JAVA_HOME/bin/javapackager \
     -outdir $base_dir/desktop/package/linux \
     -srcdir $src_dir \
     -srcfiles desktop-$version-all.jar \
-    -appclass bisq.desktop.app.BisqAppMain \
+    -appclass bisq.desktop.app.DesktopNode \
     -BjvmOptions=-Xss1280k \
     -BjvmOptions=-Djava.net.preferIPv4Stack=true \
     -outfile Bisq-$version \
@@ -132,7 +132,7 @@ $JAVA_HOME/bin/javapackager \
     -outdir $base_dir/desktop/package/linux \
     -srcdir $src_dir \
     -srcfiles desktop-$version-all.jar \
-    -appclass bisq.desktop.app.BisqAppMain \
+    -appclass bisq.desktop.app.DesktopNode \
     -BjvmOptions=-Xss1280k \
     -BjvmOptions=-Djava.net.preferIPv4Stack=true \
     -outfile Bisq-$version \

@@ -19,7 +19,7 @@ package bisq.core.filter;
 
 import bisq.core.app.AppOptionKeys;
 
-import bisq.common.app.AppModule;
+import bisq.common.app.BisqModule;
 
 import org.springframework.core.env.Environment;
 
@@ -27,7 +27,7 @@ import com.google.inject.Singleton;
 
 import static com.google.inject.name.Names.named;
 
-public class FilterModule extends AppModule {
+public class FilterModule extends BisqModule {
 
     public FilterModule(Environment environment) {
         super(environment);

@@ -18,7 +18,7 @@
 package bisq.desktop.util;
 
 import bisq.desktop.Navigation;
-import bisq.desktop.app.BisqApp;
+import bisq.desktop.app.DesktopNodeApplication;
 import bisq.desktop.components.AutoTooltipLabel;
 import bisq.desktop.components.BisqTextArea;
 import bisq.desktop.components.InfoAutoTooltipLabel;
@@ -768,7 +768,7 @@ public class GUIUtil {
                     .actionButtonText(Res.get("shared.shutDown"))
                     .onAction(() -> {
                         preferences.setResyncSpvRequested(true);
-                        UserThread.runAfter(BisqApp.getShutDownHandler(), 100, TimeUnit.MILLISECONDS);
+                        UserThread.runAfter(DesktopNodeApplication.getShutDownHandler(), 100, TimeUnit.MILLISECONDS);
                     })
                     .hideCloseButton()
                     .show();
@@ -788,7 +788,7 @@ public class GUIUtil {
                 () -> UserThread.execute(() -> {
                     log.info("Wallets restored with seed words");
                     new Popup<>().feedback(Res.get("seed.restore.success")).hideCloseButton().show();
-                    BisqApp.getShutDownHandler().run();
+                    DesktopNodeApplication.getShutDownHandler().run();
                 }),
                 throwable -> UserThread.execute(() -> {
                     log.error(throwable.toString());

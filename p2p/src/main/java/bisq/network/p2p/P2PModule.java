@@ -34,7 +34,7 @@ import bisq.network.p2p.storage.persistence.PersistableNetworkPayloadListService
 import bisq.network.p2p.storage.persistence.ProtectedDataStoreService;
 import bisq.network.p2p.storage.persistence.ResourceDataStoreService;
 
-import bisq.common.app.AppModule;
+import bisq.common.app.BisqModule;
 
 import org.springframework.core.env.Environment;
 
@@ -48,7 +48,7 @@ import java.io.File;
 import static com.google.inject.name.Names.named;
 
 
-public class P2PModule extends AppModule {
+public class P2PModule extends BisqModule {
 
     public P2PModule(Environment environment) {
         super(environment);

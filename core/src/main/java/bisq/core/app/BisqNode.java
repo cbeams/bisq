@@ -37,11 +37,12 @@ import bisq.network.p2p.network.ConnectionConfig;
 
 import bisq.common.CommonOptionKeys;
 import bisq.common.UserThread;
-import bisq.common.app.AppModule;
+import bisq.common.app.BisqModule;
 import bisq.common.app.DevEnv;
 import bisq.common.handlers.ResultHandler;
 import bisq.common.proto.persistable.PersistedDataHost;
 import bisq.common.setup.GracefulShutDownHandler;
+import bisq.common.setup.UncaughtExceptionHandler;
 
 import org.springframework.core.env.JOptCommandLinePropertySource;
 
@@ -69,7 +70,8 @@ import static bisq.core.btc.BaseCurrencyNetwork.*;
 import static java.lang.String.format;
 
 @Slf4j
-public abstract class BisqExecutable implements GracefulShutDownHandler, BisqSetup.BisqSetupListener {
+public abstract class BisqNode
+        implements UncaughtExceptionHandler, GracefulShutDownHandler, BisqSetup.BisqSetupListener {
 
     private static final int EXIT_SUCCESS = 0;
     private static final int EXIT_FAILURE = 1;
@@ -81,9 +83,9 @@ public abstract class BisqExecutable implements GracefulShutDownHandler, BisqSet
 
     protected final BisqEnvironment bisqEnvironment;
     protected final Injector injector;
-    protected final AppModule module;
+    protected final BisqModule module;
 
-    public BisqExecutable(String fullName, String scriptName, String version, String[] args) {
+    public BisqNode(String fullName, String scriptName, String version, String[] args) {
         this.fullName = fullName;
         this.scriptName = scriptName;
         this.version = version;
@@ -115,7 +117,6 @@ public abstract class BisqExecutable implements GracefulShutDownHandler, BisqSet
     }
 
     private BisqEnvironment initEnvironment(String[] args) {
-
         OptionSet options = parseOptions(args);
 
         // JOptSimple does support input parsing. However, doing only
@@ -191,7 +192,7 @@ public abstract class BisqExecutable implements GracefulShutDownHandler, BisqSet
         startApplication();
     }
 
-    protected abstract AppModule getModule();
+    protected abstract BisqModule getModule();
 
     protected void applyInjector() {
         setupDevEnv();

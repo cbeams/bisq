@@ -29,7 +29,7 @@ import bisq.core.trade.statistics.ReferralIdService;
 import bisq.core.trade.statistics.TradeStatistics2StorageService;
 import bisq.core.trade.statistics.TradeStatisticsManager;
 
-import bisq.common.app.AppModule;
+import bisq.common.app.BisqModule;
 
 import org.springframework.core.env.Environment;
 
@@ -37,7 +37,7 @@ import com.google.inject.Singleton;
 
 import static com.google.inject.name.Names.named;
 
-public class TradeModule extends AppModule {
+public class TradeModule extends BisqModule {
 
     public TradeModule(Environment environment) {
         super(environment);

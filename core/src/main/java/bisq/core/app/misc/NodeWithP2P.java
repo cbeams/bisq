@@ -19,7 +19,7 @@ package bisq.core.app.misc;
 
 import bisq.core.app.AppOptionKeys;
 import bisq.core.app.BisqEnvironment;
-import bisq.core.app.BisqExecutable;
+import bisq.core.app.BisqNode;
 import bisq.core.btc.setup.WalletsSetup;
 import bisq.core.btc.wallet.BsqWalletService;
 import bisq.core.btc.wallet.BtcWalletService;
@@ -46,17 +46,18 @@ import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public abstract class ExecutableForAppWithP2p extends BisqExecutable implements UncaughtExceptionHandler {
+public abstract class NodeWithP2P extends BisqNode implements UncaughtExceptionHandler {
 
     private static final long MAX_MEMORY_MB_DEFAULT = 1200;
     private static final long CHECK_MEMORY_PERIOD_SEC = 300;
     private static final long CHECK_SHUTDOWN_SEC = TimeUnit.HOURS.toSeconds(1);
     private static final long SHUTDOWN_INTERVAL = TimeUnit.HOURS.toMillis(24);
-    private volatile boolean stopped;
+
     private final long startTime = System.currentTimeMillis();
     private static long maxMemory = MAX_MEMORY_MB_DEFAULT;
+    private volatile boolean stopped;
 
-    public ExecutableForAppWithP2p(String fullName, String scriptName, String version, String[] args) {
+    public NodeWithP2P(String fullName, String scriptName, String version, String[] args) {
         super(fullName, scriptName, version, args);
     }
 

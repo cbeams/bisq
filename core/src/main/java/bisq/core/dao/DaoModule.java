@@ -86,7 +86,7 @@ import bisq.core.dao.state.GenesisTxInfo;
 import bisq.core.dao.state.model.DaoState;
 import bisq.core.dao.state.unconfirmed.UnconfirmedBsqChangeOutputListService;
 
-import bisq.common.app.AppModule;
+import bisq.common.app.BisqModule;
 
 import org.springframework.core.env.Environment;
 
@@ -95,7 +95,7 @@ import com.google.inject.name.Names;
 
 import static com.google.inject.name.Names.named;
 
-public class DaoModule extends AppModule {
+public class DaoModule extends BisqModule {
 
     public DaoModule(Environment environment) {
         super(environment);

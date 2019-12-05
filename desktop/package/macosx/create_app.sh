@@ -89,7 +89,7 @@ $JAVA_HOME/bin/javapackager \
     -outdir deploy \
     -srcdir deploy \
     -srcfiles "Bisq-$version.jar" \
-    -appclass bisq.desktop.app.BisqAppMain \
+    -appclass bisq.desktop.app.DesktopNode \
     -outfile Bisq \
     -v
 

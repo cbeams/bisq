@@ -34,7 +34,7 @@ import bisq.core.provider.fee.FeeProvider;
 import bisq.core.provider.fee.FeeService;
 import bisq.core.provider.price.PriceFeedService;
 
-import bisq.common.app.AppModule;
+import bisq.common.app.BisqModule;
 
 import org.springframework.core.env.Environment;
 
@@ -47,7 +47,8 @@ import java.util.Arrays;
 
 import static com.google.inject.name.Names.named;
 
-public class BitcoinModule extends AppModule {
+public class BitcoinModule extends BisqModule {
+
     public BitcoinModule(Environment environment) {
         super(environment);
     }
