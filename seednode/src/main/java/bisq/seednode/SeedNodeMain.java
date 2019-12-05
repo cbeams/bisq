@@ -27,8 +27,6 @@ import bisq.common.app.Capabilities;
 import bisq.common.app.Capability;
 import bisq.common.setup.CommonSetup;
 
-import joptsimple.OptionSet;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -48,7 +46,7 @@ public class SeedNodeMain extends ExecutableForAppWithP2p {
     }
 
     @Override
-    protected void doExecute(OptionSet options) {
+    protected void doExecute() {
         checkMemory(bisqEnvironment, this);
         startShutDownInterval(this);
         CommonSetup.setup(this);

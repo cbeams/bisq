@@ -78,7 +78,6 @@ public abstract class BisqExecutable implements GracefulShutDownHandler, BisqSet
     private final String fullName;
     private final String scriptName;
     private final String version;
-    private final OptionSet options;
 
     protected final BisqEnvironment bisqEnvironment;
     protected final Injector injector;
@@ -88,8 +87,7 @@ public abstract class BisqExecutable implements GracefulShutDownHandler, BisqSet
         this.fullName = fullName;
         this.scriptName = scriptName;
         this.version = version;
-        this.options = parseOptions(args);
-        this.bisqEnvironment = initEnvironment(options);
+        this.bisqEnvironment = initEnvironment(args);
         this.module = getModule();
         this.injector = Guice.createInjector(module);
     }
@@ -116,7 +114,10 @@ public abstract class BisqExecutable implements GracefulShutDownHandler, BisqSet
         }
     }
 
-    private BisqEnvironment initEnvironment(OptionSet options) {
+    private BisqEnvironment initEnvironment(String[] args) {
+
+        OptionSet options = parseOptions(args);
+
         // JOptSimple does support input parsing. However, doing only
         // options = parser.parse(args) isn't enough to trigger the parsing. The parsing
         // is done when the actual value is going to be retrieved, i.e.
@@ -152,7 +153,7 @@ public abstract class BisqExecutable implements GracefulShutDownHandler, BisqSet
         CoreSetup.setup(bisqEnvironment);
         addCapabilities();
         launchApplication();
-        doExecute(options);
+        doExecute();
     }
 
     private void initDataDir(String appDir) {
@@ -180,7 +181,7 @@ public abstract class BisqExecutable implements GracefulShutDownHandler, BisqSet
     // thread interference.
     protected abstract void launchApplication();
 
-    protected void doExecute(OptionSet options) {
+    protected void doExecute() {
     }
 
     // If application is a JavaFX application we need wait for onApplicationLaunched
