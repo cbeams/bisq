@@ -29,7 +29,6 @@ import bisq.desktop.util.GUIUtil;
 import bisq.desktop.util.ImageUtil;
 import bisq.desktop.util.Layout;
 
-import bisq.core.app.BisqEnvironment;
 import bisq.core.btc.wallet.Restrictions;
 import bisq.core.dao.DaoFacade;
 import bisq.core.dao.DaoOptionKeys;
@@ -52,6 +51,7 @@ import bisq.core.util.validation.IntegerValidator;
 
 import bisq.common.UserThread;
 import bisq.common.app.DevEnv;
+import bisq.common.config.BaseCurrencyNetwork;
 import bisq.common.util.Tuple3;
 import bisq.common.util.Utilities;
 
@@ -272,7 +272,7 @@ public class PreferencesView extends ActivatableViewAndModel<GridPane, Preferenc
                 String estimatedFee = String.valueOf(feeService.getTxFeePerByte().value);
                 try {
                     int withdrawalTxFeePerByte = Integer.parseInt(transactionFeeInputTextField.getText());
-                    final long minFeePerByte = BisqEnvironment.getBaseCurrencyNetwork().getDefaultMinFeePerByte();
+                    final long minFeePerByte = BaseCurrencyNetwork.CURRENT_NETWORK.getDefaultMinFeePerByte();
                     if (withdrawalTxFeePerByte < minFeePerByte) {
                         new Popup().warning(Res.get("setting.preferences.txFeeMin", minFeePerByte)).show();
                         transactionFeeInputTextField.setText(estimatedFee);
@@ -643,7 +643,7 @@ public class PreferencesView extends ActivatableViewAndModel<GridPane, Preferenc
                 .collect(Collectors.toList());
         selectBaseCurrencyNetworkComboBox.setItems(FXCollections.observableArrayList(baseCurrencyNetworks));
         selectBaseCurrencyNetworkComboBox.setOnAction(e -> onSelectNetwork());
-        selectBaseCurrencyNetworkComboBox.getSelectionModel().select(BisqEnvironment.getBaseCurrencyNetwork());*/
+        selectBaseCurrencyNetworkComboBox.getSelectionModel().select(BaseCurrencyNetwork.CURRENT_VALUE);*/
 
         boolean useCustomWithdrawalTxFee = preferences.isUseCustomWithdrawalTxFee();
         useCustomFee.setSelected(useCustomWithdrawalTxFee);
@@ -913,7 +913,7 @@ public class PreferencesView extends ActivatableViewAndModel<GridPane, Preferenc
     }
 
    /* private void onSelectNetwork() {
-        if (selectBaseCurrencyNetworkComboBox.getSelectionModel().getSelectedItem() != BisqEnvironment.getBaseCurrencyNetwork())
+        if (selectBaseCurrencyNetworkComboBox.getSelectionModel().getSelectedItem() != BaseCurrencyNetwork.CURRENT_VALUE)
             selectNetwork();
     }
 
@@ -925,7 +925,7 @@ public class PreferencesView extends ActivatableViewAndModel<GridPane, Preferenc
                 })
                 .actionButtonText(Res.get("shared.shutDown"))
                 .closeButtonText(Res.get("shared.cancel"))
-                .onClose(() -> selectBaseCurrencyNetworkComboBox.getSelectionModel().select(BisqEnvironment.getBaseCurrencyNetwork()))
+                .onClose(() -> selectBaseCurrencyNetworkComboBox.getSelectionModel().select(BaseCurrencyNetwork.CURRENT_VALUE))
                 .show();
     }*/
 

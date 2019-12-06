@@ -24,6 +24,8 @@ import bisq.core.locale.Res;
 import bisq.core.user.Preferences;
 import bisq.core.util.FormattingUtils;
 
+import bisq.common.config.Config;
+
 import org.bitcoinj.core.VersionMessage;
 import org.bitcoinj.store.BlockStoreException;
 import org.bitcoinj.store.ChainFileLockedException;
@@ -54,9 +56,10 @@ import javax.annotation.Nullable;
 @Slf4j
 @Singleton
 public class WalletAppSetup {
+
     private final WalletsManager walletsManager;
     private final WalletsSetup walletsSetup;
-    private final BisqEnvironment bisqEnvironment;
+    private final Config config;
     private final Preferences preferences;
 
     @SuppressWarnings("FieldCanBeLocal")
@@ -80,11 +83,11 @@ public class WalletAppSetup {
     @Inject
     public WalletAppSetup(WalletsManager walletsManager,
                           WalletsSetup walletsSetup,
-                          BisqEnvironment bisqEnvironment,
+                          Config config,
                           Preferences preferences) {
         this.walletsManager = walletsManager;
         this.walletsSetup = walletsSetup;
-        this.bisqEnvironment = bisqEnvironment;
+        this.config = config;
         this.preferences = preferences;
         this.useTorForBTC.set(preferences.getUseTorForBitcoinJ());
     }
@@ -174,12 +177,12 @@ public class WalletAppSetup {
 
     private String getBtcNetworkAsString() {
         String postFix;
-        if (bisqEnvironment.isBitcoinLocalhostNodeRunning())
+        if (config.isIgnoreLocalBtcNode())
             postFix = " " + Res.get("mainView.footer.localhostBitcoinNode");
         else if (preferences.getUseTorForBitcoinJ())
             postFix = " " + Res.get("mainView.footer.usingTor");
         else
             postFix = "";
-        return Res.get(BisqEnvironment.getBaseCurrencyNetwork().name()) + postFix;
+        return Res.get(config.getBaseCurrencyNetwork().name()) + postFix;
     }
 }

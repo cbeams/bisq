@@ -19,7 +19,6 @@ package bisq.grpc;
 
 import bisq.core.CoreApi;
 import bisq.core.CoreModule;
-import bisq.core.app.BisqExecutable;
 import bisq.core.app.BisqHeadlessAppMain;
 import bisq.core.app.BisqSetup;
 
@@ -34,21 +33,21 @@ import java.util.concurrent.ThreadFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 /**
  * Main class to start gRPC server with a headless BisqGrpcApp instance.
  */
+@Slf4j
 public class BisqGrpcServerMain extends BisqHeadlessAppMain implements BisqSetup.BisqSetupListener {
     private static BisqGrpcServer bisqGrpcServer;
 
     public static void main(String[] args) throws Exception {
-        if (BisqExecutable.setupInitialOptionParser(args)) {
-            // For some reason the JavaFX launch process results in us losing the thread context class loader: reset it.
-            // In order to work around a bug in JavaFX 8u25 and below, you must include the following code as the first line of your realMain method:
-            Thread.currentThread().setContextClassLoader(BisqGrpcServerMain.class.getClassLoader());
+        // For some reason the JavaFX launch process results in us losing the thread
+        // context class loader: reset it. In order to work around a bug in JavaFX 8u25
+        // and below, you must include the following code as the first line of your
+        // realMain method:
+        Thread.currentThread().setContextClassLoader(BisqGrpcServerMain.class.getClassLoader());
 
-            new BisqGrpcServerMain().execute(args);
-        }
+        new BisqGrpcServerMain().execute(args);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////
@@ -98,7 +97,7 @@ public class BisqGrpcServerMain extends BisqHeadlessAppMain implements BisqSetup
 
     @Override
     protected AppModule getModule() {
-        return new CoreModule(bisqEnvironment);
+        return new CoreModule(bisqEnvironment, config);
     }
 
     @Override
