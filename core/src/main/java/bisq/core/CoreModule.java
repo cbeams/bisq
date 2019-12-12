@@ -18,7 +18,6 @@
 package bisq.core;
 
 import bisq.core.alert.AlertModule;
-import bisq.core.app.AppOptionKeys;
 import bisq.core.app.BisqEnvironment;
 import bisq.core.btc.BitcoinModule;
 
@@ -50,14 +49,13 @@ import bisq.common.proto.persistable.PersistenceProtoResolver;
 
 import org.springframework.core.env.Environment;
 
-import com.google.inject.name.Names;
-
 import java.io.File;
 
 import static bisq.common.config.Config.KEY_STORAGE_DIR;
 import static bisq.common.config.Config.REFERRAL_ID;
 import static bisq.common.config.Config.STORAGE_DIR;
 import static bisq.common.config.Config.USE_DEV_MODE;
+import static bisq.common.config.Config.USE_DEV_PRIVILEGE_KEYS;
 import static com.google.inject.name.Names.named;
 
 public class CoreModule extends AppModule {
@@ -85,9 +83,7 @@ public class CoreModule extends AppModule {
         bind(NetworkProtoResolver.class).to(CoreNetworkProtoResolver.class);
         bind(PersistenceProtoResolver.class).to(CorePersistenceProtoResolver.class);
 
-        Boolean useDevPrivilegeKeys = environment.getProperty(AppOptionKeys.USE_DEV_PRIVILEGE_KEYS, Boolean.class, false);
-        bind(boolean.class).annotatedWith(Names.named(AppOptionKeys.USE_DEV_PRIVILEGE_KEYS)).toInstance(useDevPrivilegeKeys);
-
+        bind(boolean.class).annotatedWith(named(USE_DEV_PRIVILEGE_KEYS)).toInstance(config.isUseDevPrivilegeKeys());
         bind(boolean.class).annotatedWith(named(USE_DEV_MODE)).toInstance(config.isUseDevMode());
         bind(String.class).annotatedWith(named(REFERRAL_ID)).toInstance(config.getReferralId());
 
