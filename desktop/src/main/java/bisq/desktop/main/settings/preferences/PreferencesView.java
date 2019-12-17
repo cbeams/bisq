@@ -31,7 +31,6 @@ import bisq.desktop.util.Layout;
 
 import bisq.core.btc.wallet.Restrictions;
 import bisq.core.dao.DaoFacade;
-import bisq.core.dao.DaoOptionKeys;
 import bisq.core.dao.governance.asset.AssetService;
 import bisq.core.filter.FilterManager;
 import bisq.core.locale.Country;
@@ -160,7 +159,7 @@ public class PreferencesView extends ActivatableViewAndModel<GridPane, Preferenc
                            AssetService assetService,
                            FilterManager filterManager,
                            DaoFacade daoFacade,
-                           @Named(DaoOptionKeys.FULL_DAO_NODE) String fullDaoNode,
+                           Config config,
                            @Named(Config.RPC_USER) String rpcUser,
                            @Named(Config.RPC_PASSWORD) String rpcPassword,
                            @Named(Config.RPC_BLOCK_NOTIFICATION_PORT) int rpcBlockNotificationPort) {
@@ -170,8 +169,8 @@ public class PreferencesView extends ActivatableViewAndModel<GridPane, Preferenc
         this.assetService = assetService;
         this.filterManager = filterManager;
         this.daoFacade = daoFacade;
-        daoOptionsSet = fullDaoNode != null && !fullDaoNode.isEmpty() &&
-                rpcUser != null && !rpcUser.isEmpty() &&
+        daoOptionsSet = config.isFullDaoNodeOptionSetExplicitly() &&
+                !rpcUser.isEmpty() &&
                 !rpcPassword.isEmpty() &&
                 rpcBlockNotificationPort != Config.UNSPECIFIED_PORT;
         this.displayStandbyModeFeature = Utilities.isOSX() || Utilities.isWindows();
