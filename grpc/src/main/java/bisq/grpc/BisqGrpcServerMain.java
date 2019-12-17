@@ -97,7 +97,7 @@ public class BisqGrpcServerMain extends BisqHeadlessAppMain implements BisqSetup
 
     @Override
     protected AppModule getModule() {
-        return new CoreModule(bisqEnvironment, config);
+        return new CoreModule(config);
     }
 
     @Override

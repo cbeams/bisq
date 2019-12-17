@@ -20,21 +20,19 @@ package bisq.desktop.app;
 import bisq.desktop.DesktopModule;
 
 import bisq.core.CoreModule;
-import bisq.common.config.Config;
 
 import bisq.common.app.AppModule;
-
-import org.springframework.core.env.Environment;
+import bisq.common.config.Config;
 
 public class BisqAppModule extends AppModule {
 
-    public BisqAppModule(Environment environment, Config config) {
-        super(environment, config);
+    public BisqAppModule(Config config) {
+        super(config);
     }
 
     @Override
     protected void configure() {
-        install(new CoreModule(environment, config));
-        install(new DesktopModule(environment, config));
+        install(new CoreModule(config));
+        install(new DesktopModule(config));
     }
 }
