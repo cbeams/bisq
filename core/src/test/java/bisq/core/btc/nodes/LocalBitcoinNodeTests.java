@@ -5,6 +5,8 @@ import java.net.ServerSocket;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Before;
@@ -30,7 +32,7 @@ public class LocalBitcoinNodeTests {
     }
 
     @Test
-    public void whenLocalBitcoinNodeIsDetected_thenCallbackGetsRun_andIsDetectedReturnsTrue() {
+    public void whenLocalBitcoinNodeIsDetected_thenCallbackGetsRun_andIsDetectedReturnsTrue() throws InterruptedException {
         // Listen on the port, indicating that the local bitcoin node is running
         new Thread(() -> {
             try (ServerSocket socket = new ServerSocket(port)){
@@ -39,6 +41,8 @@ public class LocalBitcoinNodeTests {
                 throw new UncheckedIOException(ex);
             }
         }).start();
+
+        Thread.sleep(50L);
 
         localBitcoinNode.detectAndRun(callback);
         assertTrue(called.get());
